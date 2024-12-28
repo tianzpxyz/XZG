@@ -1,9 +1,9 @@
 # XZG Firmware
 <div align="center"> 
-<a href="https://github.com/xyzroe/XZG/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
-<a href="https://github.com/xyzroe/XZG/actions/workflows/build_fw.yml"><img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img></a>
-<a href="https://github.com/xyzroe/XZG/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/XZG/total.svg" alt="GitHub download"></img></a>
-<a href="https://github.com/xyzroe/XZG/issues"><img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img></a>
+<a href="https://bgithub.xyz/xyzroe/XZG/releases"><img src="https://img.shields.io/github/release/xyzroe/xzg.svg" alt="GitHub version"></img></a>
+<a href="https://bgithub.xyz/xyzroe/XZG/actions/workflows/build_fw.yml"><img src="https://img.shields.io/github/actions/workflow/status/xyzroe/XZG/build_fw.yml" alt="GitHub Actions Workflow Status"></img></a>
+<a href="https://bgithub.xyz/xyzroe/XZG/releases/latest"><img src="https://img.shields.io/github/downloads/xyzroe/XZG/total.svg" alt="GitHub download"></img></a>
+<a href="https://bgithub.xyz/xyzroe/XZG/issues"><img src="https://img.shields.io/github/issues/xyzroe/XZG" alt="GitHub Issues or Pull Requests"></img></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/xyzroe/xzg.svg" alt="License"></img></a>
 </div>
 <div align="center"> 
@@ -70,7 +70,7 @@ Please follow the installation guide tailored to your hardware.
   
 ### Gitpod
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/xyzroe/XZG)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tianzpxyz/XZG)
 
 ## 🖥️ Contribute
 
@@ -94,7 +94,7 @@ Contributions are welcome! If you'd like to help improve the XZG Firmware, you c
 Thanks to all the developers and contributors who make this project possible, and special thanks to [@mercenaruss](https://github.com/mercenaruss/) for **Zig Star devices development**.
 
 #### All contributors:
-<a href="https://github.com/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
+<a href="https://bgithub.xyz/xyzroe/XZG/graphs/contributors"><img src="https://contrib.rocks/image?repo=xyzroe/XZG" /></a>
 
 
 Special thanks to all third-party library authors. Their work has significantly contributed to this project:
