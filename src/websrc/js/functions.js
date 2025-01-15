@@ -2638,7 +2638,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-	var t = await fetch("https://api.github.com/repos/xyzroe/XZG/releases");
+	var t = await fetch("https://api.github.com/repos/tianzpxyz/XZG/releases");
 	if (t.ok) return await t.json();
 	throw new Error("GitHub API request failed: " + t.statusText)
 }
