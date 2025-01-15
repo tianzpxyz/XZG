@@ -63,7 +63,7 @@ jobs:
         id: get_commit_message
         run: |
           currentTag=${{ steps.get_tag.outputs.tag }}
-          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)"
+          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/tianzpxyz/XZG/${currentTag}/total)"
           printf -v badgeTextWithNewlines "%s\n\n" "$badgeText" 
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
           fullCommitMessage="${badgeTextWithNewlines}${commitMessage}"
@@ -88,7 +88,7 @@ jobs:
                 "improv": false,
                 "parts": [
                   {
-                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_tag.outputs.tag }}.full.bin",
+                    "path": "https://raw.bgithub.xyz/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_tag.outputs.tag }}.full.bin",
                     "offset": 0
                   }
                 ]
@@ -185,7 +185,7 @@ jobs:
 
       - name: Send Discord Notification about release
         run: |
-          json_payload=$(jq -n --arg content "https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
+          json_payload=$(jq -n --arg content "https://bgithub.xyz/${{ github.repository }}/releases/tag/${{ steps.get_tag.outputs.tag }}" '{content: $content}')
           curl -H "Content-Type: application/json" \
               -d "$json_payload" \
               ${{ secrets.DISCORD_WEBHOOK }}
