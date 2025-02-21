@@ -2285,7 +2285,7 @@ String fetchLatestZbFw()
 {
     // checkDNS();
     HTTPClient http;
-    http.begin("https://raw.bgithub.xyz/tianzpxyz/XZG/zb_fws/ti/manifest.json");
+    http.begin("https://raw.bgithub.xyz/tianzpxyz/XZG/zbfws/ti/manifest.json");
     int httpCode = http.GET();
 
     String browser_download_url = "";
