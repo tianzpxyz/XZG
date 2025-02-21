@@ -2409,7 +2409,7 @@ async function fetchData(url, isJson = true) {
 
 async function processResponses() {
 	try {
-		let jsonUrl = 'https://api.github.com/repos/xyzroe/XZG/releases/latest';
+		let jsonUrl = 'https://api.github.com/repos/tianzpxyz/XZG/releases/latest';
 		let textUrl = '/api?action=1&param=espVer';
 
 		let [jsonData, textData] = await Promise.all([
