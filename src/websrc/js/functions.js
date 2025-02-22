@@ -18,7 +18,7 @@ const statusFail = $('<span>', {
 	"role": "status",
 }).css("margin-left", "10px").text("❌");
 
-const zbFwInfoUrl = "https://raw.github.com/tianzpxyz/XZG/zbfws/ti/manifest.json";
+const zbFwInfoUrl = "https://raw.githubusercontent.com/tianzpxyz/XZG/zbfws/ti/manifest.json";
 
 const headerText = ".modal-title";
 const headerBtnClose = ".modal-btn-close";
