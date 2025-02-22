@@ -88,7 +88,7 @@ jobs:
                 "improv": false,
                 "parts": [
                   {
-                    "path": "https://raw.bgithub.xyz/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_tag.outputs.tag }}.full.bin",
+                    "path": "https://raw.githubusercontent.com/${{ github.repository }}/releases/${{ steps.get_tag.outputs.tag }}/XZG_${{ steps.get_tag.outputs.tag }}.full.bin",
                     "offset": 0
                   }
                 ]
