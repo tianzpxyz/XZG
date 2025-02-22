@@ -2216,7 +2216,7 @@ FirmwareInfo fetchLatestEspFw(String type)
     {
         HTTPClient http;
         http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-        http.begin("https://raw.bgithub.xyz/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json");
+        http.begin("https://raw.github.com/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json");
         int httpCode = http.GET();
 
         if (httpCode > 0)
@@ -2236,8 +2236,8 @@ FirmwareInfo fetchLatestEspFw(String type)
                 if (release.containsKey("version"))
                 {
                     info.version = release["version"].as<String>();
-                    info.url = "https://bgithub.xyz/tianzpxyz/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
-                    //info.url = "https://raw.bgithub.xyz/tianzpxyz/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
+                    info.url = "https://github.com/tianzpxyz/XZG/releases/download/" + info.version + "/XZG_" + info.version + "." + type + ".bin";
+                    //info.url = "https://raw.github.com/tianzpxyz/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
                     LOGD("Latest version: %s | url %s", info.version.c_str(), info.url.c_str());
                 }
                 else
@@ -2285,7 +2285,7 @@ String fetchLatestZbFw()
 {
     // checkDNS();
     HTTPClient http;
-    http.begin("https://raw.bgithub.xyz/tianzpxyz/XZG/zbfws/ti/manifest.json");
+    http.begin("https://raw.github.com/tianzpxyz/XZG/zbfws/ti/manifest.json");
     int httpCode = http.GET();
 
     String browser_download_url = "";
