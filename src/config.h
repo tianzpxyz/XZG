@@ -19,7 +19,7 @@
 #define NTP_SERV_1 "pool.ntp.org"
 #define NTP_SERV_2 "time.google.com"
 #define DNS_SERV_1 "1.1.1.1"
-#define DNS_SERV_2 "8.8.8.8"
+#define DNS_SERV_2 "114.114.114.114"
 #define NETWORK_MASK "255.255.255.0"
 #define NETWORK_ZERO "192.168.1.10"
 #define NM_START_TIME "23:00"
