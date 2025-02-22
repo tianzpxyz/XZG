@@ -2216,7 +2216,7 @@ FirmwareInfo fetchLatestEspFw(String type)
     {
         HTTPClient http;
         http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-        http.begin("https://raw.github.com/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json");
+        http.begin("https://raw.githubusercontent.com/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json");
         int httpCode = http.GET();
 
         if (httpCode > 0)
@@ -2285,7 +2285,7 @@ String fetchLatestZbFw()
 {
     // checkDNS();
     HTTPClient http;
-    http.begin("https://raw.github.com/tianzpxyz/XZG/zbfws/ti/manifest.json");
+    http.begin("https://raw.githubusercontent.com/tianzpxyz/XZG/zbfws/ti/manifest.json");
     int httpCode = http.GET();
 
     String browser_download_url = "";
