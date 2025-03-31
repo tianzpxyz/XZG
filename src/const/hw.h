@@ -46,10 +46,10 @@ struct BrdConfigStruct
     int mistConfigIndex;
 };
 
-#define ETH_CFG_CNT 3
-#define ZB_CFG_CNT 8
-#define MIST_CFG_CNT 5
-#define BOARD_CFG_CNT 14
+#define ETH_CFG_CNT 1
+#define ZB_CFG_CNT 1
+#define MIST_CFG_CNT 1
+#define BOARD_CFG_CNT 1
 
 struct ThisConfigStruct
 {
