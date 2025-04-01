@@ -70,7 +70,7 @@ Please follow the installation guide tailored to your hardware.
   
 ### Gitpod
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/xyzroe/XZG)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/tianzpxyz/XZG)
 
 ## 🖥️ Contribute
 
