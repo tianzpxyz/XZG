@@ -25,7 +25,7 @@
 // Redefine these here, or in build system if necessary.
 #ifndef BACKEND_CUSTOM_URLS
 #define FW_UPDATE_URL_BASE "https://github.com/tianzpxyz/XZG/releases/download/"
-#define FW_UPDATE_URL_RELEASE_NAME "YLZB_"
+#define FW_UPDATE_URL_RELEASE_NAME "XZG_"
 #define FW_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json"
 #define ZB_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/tianzpxyz/XZG/zbfws/ti/manifest.json"
 #endif
