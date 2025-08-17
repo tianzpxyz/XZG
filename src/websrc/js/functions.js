@@ -18,7 +18,7 @@ const statusFail = $('<span>', {
 	"role": "status",
 }).css("margin-left", "10px").text("❌");
 
-const zbFwInfoUrl = "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json";
+const zbFwInfoUrl = "https://raw.githubusercontent.com/tianzpxyz/XZG/zb_fws/ti/manifest.json";
 
 const headerText = ".modal-title";
 const headerBtnClose = ".modal-btn-close";
@@ -2409,7 +2409,7 @@ async function fetchData(url, isJson = true) {
 
 async function processResponses() {
 	try {
-		let jsonUrl = 'https://api.github.com/repos/xyzroe/XZG/releases/latest';
+		let jsonUrl = 'https://api.github.com/repos/tianzpxyz/XZG/releases/latest';
 		let textUrl = '/api?action=1&param=espVer';
 
 		let [jsonData, textData] = await Promise.all([
@@ -2639,7 +2639,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-	var t = await fetch("https://api.github.com/repos/xyzroe/XZG/releases");
+	var t = await fetch("https://api.github.com/repos/tianzpxyz/XZG/releases");
 	if (t.ok) return await t.json();
 	throw new Error("GitHub API request failed: " + t.statusText)
 }

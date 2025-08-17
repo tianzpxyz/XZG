@@ -63,7 +63,7 @@ jobs:
         id: get_commit_message
         run: |
           currentTag=${{ steps.get_tag.outputs.tag }}
-          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/xyzroe/XZG/${currentTag}/total)"
+          badgeText="![GitHub Downloads](https://img.shields.io/github/downloads/tianzpxyz/XZG/${currentTag}/total)"
           printf -v badgeTextWithNewlines "%s\n\n" "$badgeText" 
           commitMessage=$(git log -1 --pretty=%B | tail -n +2)
           fullCommitMessage="${badgeTextWithNewlines}${commitMessage}"
