@@ -311,7 +311,7 @@ void getDeviceID(char *arr)
 
   // sprintf(arr, "%s-%s", hwConfig.board, buf);
 
-  String devicePref = "XZG"; // hwConfig.board
+  String devicePref = "YLZGB-GW"; // hwConfig.board
   snprintf(arr, MAX_DEV_ID_LONG, "%s-%s", devicePref, buf);
 }
 

@@ -315,7 +315,7 @@ void loadSystemConfig(SystemConfigStruct &config)
     config.disableLedUSB = preferences.getBool(disableLedUSBKey, false);
     config.disableLedPwr = preferences.getBool(disableLedPwrKey, false);
     config.refreshLogs = preferences.getInt(refreshLogsKey, 1);
-    strlcpy(config.hostname, preferences.getString(hostnameKey, "XZG").c_str(), sizeof(config.hostname)); /// to do add def host name!!
+    strlcpy(config.hostname, preferences.getString(hostnameKey, "YLZGB_GW").c_str(), sizeof(config.hostname)); /// to do add def host name!!
     strlcpy(config.timeZone, preferences.getString(timeZoneKey, NTP_TIME_ZONE).c_str(), sizeof(config.timeZone));
     strlcpy(config.ntpServ1, preferences.getString(ntpServ1Key, NTP_SERV_1).c_str(), sizeof(config.ntpServ1));
     strlcpy(config.ntpServ2, preferences.getString(ntpServ2Key, NTP_SERV_2).c_str(), sizeof(config.ntpServ2));
