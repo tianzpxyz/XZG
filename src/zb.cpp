@@ -167,7 +167,7 @@ void flashZbUrl(String url)
     printLogMsg("Start Zigbee flashing");
     sendEvent(tagZB_FW_info, eventLen, String("start"));
 
-    // https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240316.bin
+    // https://raw.githubusercontent.com/tianzpxyz/XZG/zb_fws/ti/coordinator/CC1352P7_coordinator_20240316.bin
     //  CCTool.enterBSL();
     int key = url.indexOf("?b=");
 
