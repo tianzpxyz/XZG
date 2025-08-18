@@ -16,7 +16,7 @@
     "mac": "Indirizzo MAC",
     "mode": "Modalità",
     "now": "Installa ora",
-    "pass": "Password",
+    "pass": "Parola d'ordine",
     "proj": "Creato con ❤️ da",
     "save": "Salva",
     "sure": "Sono sicuro",
@@ -33,8 +33,7 @@
       "e": "Tempo scaduto",
       "s": "Ora di inizio"
     },
-    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare.",
-    "more": "Maggiori informazioni"
+    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare."
   },
   "md": {
     "esp": {
@@ -245,16 +244,15 @@
         "nnf": "Reti WiFi non trovate",
         "mode": "Modalità",
         "power": "Potenza Tx"
-      },
-      "ipv6": "IPv6"
+      }
     },
     "st": {
       "dic": {
-        "cs": "Cores",
-        "dm": "Modello dispositivo",
+        "cs": "nuclei",
+        "dm": "Modello del dispositivo",
         "ef": "Processore",
         "efs": "Memoria",
-        "ehs": "Memoria utilizzata",
+        "ehs": "Memoria in uso",
         "et": "Temperatura",
         "kb": "kB",
         "mb": "MB",
@@ -263,7 +261,7 @@
         "efte": "esterno",
         "efti": "interno",
         "efss": "File di Sistema",
-        "ens": "Memoria Flash",
+        "ens": "Memoria non volatile",
         "ent": "inserimenti",
         "du": "Tempo di attività del dispositivo",
         "lt": "Ora locale",
@@ -287,15 +285,15 @@
         "op": "Modalità operativa",
         "opn": "Rete Zigbee",
         "opu": "Zigbee-USB",
-        "scc": "Client connessi",
+        "scc": "Client socket connesso",
         "sccn": "Nessuna connessione",
         "su": "tempo di connessione",
-        "sccy": "{{count}} clienti",
+        "sccy": "Sì, {{count}} clienti",
         "zfs": "Dimensione della flash",
         "zie": "IEEE"
       },
       "c": {
-        "fv": "Versione firmware",
+        "fv": "Revisione firmware",
         "hv": "Versione hardware",
         "r": "Ruolo"
       },
@@ -309,8 +307,7 @@
       "desc": "Configurazione sicurezza",
       "fw": {
         "desc": "Whitelist IP per socket",
-        "ip": "IP consentito",
-        "mask": "Maschera consentita"
+        "ip": "IP consentito"
       },
       "web": {
         "auth": "Abilita l'autenticazione del server web",
@@ -446,7 +443,7 @@
         "tt": "Feedback sulla beta del firmware"
       },
       "upd": {
-        "msg": "È stata trovata una versione più recente del firmware XZG",
+        "msg": "Il nuovo firmware ({{ver}}) è stato trovato su GitHub. \nÈ stato scaricato {{count}} volte.",
         "tt": "Aggiornamento ESP32 disponibile 🚀"
       }
     },
@@ -455,8 +452,7 @@
         "tt": "Nessun firmware trovato"
       },
       "upd": {
-        "tt": "Trovato nuovo firmware Zigbee 🌟",
-        "msg": "È stata trovata una versione più recente del firmware per il modulo RCP"
+        "tt": "Trovato nuovo firmware Zigbee 🌟"
       }
     }
   }

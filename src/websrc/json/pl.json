@@ -28,13 +28,12 @@
     "en": "Włączony",
     "err": "Błąd",
     "nc": "Brak połączenia",
-    "cl": "Zamknij",
+    "cl": "Zamknąć",
     "t": {
       "e": "Koniec czasu",
       "s": "Czas rozpoczęcia"
     },
-    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować.",
-    "more": "Więcej informacji"
+    "cerp": "Osiągnięto maksymalną liczbę ponownych prób ponownego połączenia zdarzeń. \nOdśwież stronę, aby kontynuować."
   },
   "md": {
     "esp": {
@@ -244,9 +243,8 @@
         "ssid": "SSID",
         "nnf": "Nie znaleziono sieci Wi-Fi",
         "mode": "Tryb",
-        "power": "Moc"
-      },
-      "ipv6": "IPv6"
+        "power": "Moc wysyłania"
+      }
     },
     "st": {
       "dic": {
@@ -309,8 +307,7 @@
       "desc": "Konfiguracja zabezpieczeń",
       "fw": {
         "desc": "Biała lista adresów IP dla gniazda",
-        "ip": "Dozwolone IP",
-        "mask": "Dozwolona maska"
+        "ip": "Dozwolone IP"
       },
       "web": {
         "auth": "Włącz uwierzytelnianie serwera WWW",
@@ -326,7 +323,7 @@
       "dc": "Konsola debugowania",
       "dt": "Narzędzia do debugowania",
       "efu": "Plik aktualizacji ESP32",
-      "egu": "ESP32",
+      "egu": "Aktualizacja Git ESP32",
       "esp": "ESP32",
       "fb": "Przeglądarka plików",
       "fm": "Tryb flash",
@@ -351,7 +348,7 @@
       "zb": "Zigbee",
       "zu": "Aktualizacja Zigbee (w przygotowaniu)",
       "saf": "Pokaż dostępne oprogramowanie sprzętowe",
-      "zgu": "Zigbee",
+      "zgu": "Aktualizacja Gita CC2652",
       "eznr": "Wymaż NVRAM"
     },
     "vp": {
@@ -390,11 +387,11 @@
         "ss": "Konfiguracja szeregowa",
         "tt": "Generator konfiguracji"
       },
-      "so": "Ustawienia połączenia szeregowego",
-      "sp": "Port",
-      "ss": "Szybkość",
+      "so": "Konfiguracja szeregowa",
+      "sp": "Port gniazda",
+      "ss": "Szybkość gniazda",
       "fws": {
-        "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci spowoduje awarię sieci!",
+        "alarm": "Zmiana oprogramowania sprzętowego w działającej sieci powoduje awarię sieci!",
         "tt": "Rola"
       }
     },
@@ -446,7 +443,7 @@
         "tt": "Opinia o wersji beta FW"
       },
       "upd": {
-        "msg": "Znaleziono nowszą wersję oprogramowania XZG",
+        "msg": "W GitHubie znaleziono nowe oprogramowanie sprzętowe ({{ver}}). \nZostał pobrany {{count}} razy.",
         "tt": "Dostępna aktualizacja ESP32 🚀"
       }
     },
@@ -455,8 +452,7 @@
         "tt": "Nie znaleziono oprogramowania sprzętowego"
       },
       "upd": {
-        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟",
-        "msg": "Znaleziono nowszą wersję oprogramowania modułu RCP"
+        "tt": "Znaleziono nowe oprogramowanie Zigbee 🌟"
       }
     }
   }

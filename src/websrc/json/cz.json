@@ -31,7 +31,7 @@
         "efss": "Souborový systém",
         "du": "Doba běhu zařízení",
         "lt": "Místní čas",
-        "et1": "Teplota 1W"
+        "et1": "1W Temperature"
       },
       "te": "Ethernet",
       "tw": "WiFi",
@@ -74,7 +74,7 @@
       "host": {
         "n": "Název hostitele",
         "ph": "Přistupujte k zařízení přes síť pomocí tohoto name.local",
-        "tt": "Písmena latinky a číslice bez mezer"
+        "tt": "Písmena latinky a číslice, bez mezer"
       },
       "refresh": {
         "n": "Interval obnovování webu",
@@ -117,7 +117,7 @@
           "tt": "Den v týdnu",
           "tu": "Čtvrtek",
           "wd": "Středa",
-          "du": "Nekontrolovat"
+          "du": "Disable"
         },
         "h": "Čas kontroly nového firmwaru"
       }
@@ -142,8 +142,7 @@
         "nnf": "Sítě Wi-Fi nebyly nalezeny",
         "mode": "Režim",
         "power": "Tx výkon"
-      },
-      "ipv6": "IPv6"
+      }
     },
     "zi": {
       "so": "Sériová linka",
@@ -163,7 +162,7 @@
       },
       "fws": {
         "tt": "Role zařízení",
-        "alarm": "Změna firmwaru za chodu sítě povede k jejímu zničení!"
+        "alarm": "Změna firmwaru v běžící síti způsobí rozpad sítě!"
       }
     },
     "mq": {
@@ -196,11 +195,11 @@
       },
       "user": {
         "ph": "Uživatelské jméno",
-        "tt": "Zadejte uživatelské jméno vašeho brokera"
+        "tt": "Zadejte uživatelské jméno od vašeho brokera"
       },
       "pass": {
         "ph": "Heslo",
-        "tt": "Zadejte heslo vašeho brokera"
+        "tt": "Zadejte heslo od svého brokera"
       },
       "reconnect": {
         "n": "Opětovné připojení",
@@ -239,8 +238,7 @@
       },
       "fw": {
         "desc": "Seznam povolených IP pro socket",
-        "ip": "Povolená IP",
-        "mask": "Povolená maska"
+        "ip": "Povolená IP"
       }
     },
     "to": {
@@ -264,7 +262,7 @@
       "pwr": "Napájení",
       "mode": "Režim",
       "dc": "Debug konzole",
-      "rd": "Raw data",
+      "rd": "Nezpracovaná data",
       "cc": "Vymazat konzoli",
       "czc": "Zkontrolovat připojení Zigbee",
       "czv": "Zkontrolovat verzi Zigbee",
@@ -272,7 +270,7 @@
       "fn": "Název souboru",
       "s": "Velikost",
       "egu": "ESP32",
-      "efu": "Ruční flashování ESP32",
+      "efu": "Manuální flashování ESP32",
       "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
       "zu": "Aktualizace Zigbee (ve vývoji)",
@@ -358,8 +356,7 @@
       "e": "Čas ukončení",
       "s": "Čas spuštění"
     },
-    "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku",
-    "more": "Více informací"
+    "cerp": "Bylo dosaženo maximálního počtu pokusů o opětovné připojení událostí. Chcete-li pokračovat, obnovte stránku"
   },
   "md": {
     "esp": {
@@ -423,11 +420,11 @@
     },
     "zg": {
       "fu": {
-        "f": "Připravuje se flashování: {{file}}",
+        "f": "Chystám se flashovat: {{file}}",
         "fn": "Firmware byl úspěšně nainstalován!",
         "nv": "Nová verze: {{ver}}",
         "st": "Flash CC2652 se spouští...",
-        "er": "Vymazání dokončeno"
+        "er": "Mazání dokončeno"
       }
     }
   },
@@ -435,7 +432,7 @@
     "esp": {
       "upd": {
         "tt": "K dispozici aktualizace ESP32 🚀",
-        "msg": "Byla nalezena novější verze firmwaru XZG"
+        "msg": "Na GitHubu byl nalezen nový firmware ({{ver}}). Byl stažen {{count}}krát."
       },
       "beta": {
         "tt": "Zpětná vazba FW beta",
@@ -452,8 +449,7 @@
         "tt": "Nebyl nalezen žádný firmware"
       },
       "upd": {
-        "tt": "Byl nalezen nový firmware Zigbee 🌟",
-        "msg": "Byla nalezena novější verze firmwaru pro RCP"
+        "tt": "Byl nalezen nový firmware Zigbee 🌟"
       }
     }
   }

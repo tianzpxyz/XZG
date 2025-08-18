@@ -616,7 +616,6 @@ public:
     bool checkFirmwareVersion();
     bool ledToggle();
     bool nvram_reset(void (*logFunction)(const String&));
-    void cleanBuffer();
 };
 
 #endif // CCTools_DETECT_H

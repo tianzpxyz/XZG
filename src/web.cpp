@@ -2,7 +2,7 @@
 #include <ArduinoJson.h>
 #include <ETH.h>
 #include <HTTPClient.h>
-// #include <WiFiClientSecure.h>
+#include <WiFiClientSecure.h>
 #include <LittleFS.h>
 #include <Update.h>
 #include <WebServer.h>
@@ -10,7 +10,6 @@
 #include <WiFi.h>
 #include <Ticker.h>
 #include <CCTools.h>
-#include <esp_task_wdt.h>
 
 #include "config.h"
 #include "web.h"
@@ -19,25 +18,8 @@
 #include "zb.h"
 #include "const/zones.h"
 #include "const/keys.h"
-
-// These are all of the URLs used
-// by the backend.
-// Redefine these here, or in build system if necessary.
-#ifndef BACKEND_CUSTOM_URLS
-#define FW_UPDATE_URL_BASE "https://github.com/tianzpxyz/XZG/releases/download/"
-#define FW_UPDATE_URL_RELEASE_NAME "XZG_"
-#define FW_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/tianzpxyz/XZG/refs/heads/releases/latest/xzg.json"
-#define ZB_UPDATE_RELEASE_MANIFEST_URL "https://raw.githubusercontent.com/tianzpxyz/XZG/zb_fws/ti/manifest.json"
-#endif
-
-static const char *fw_update_url_base = FW_UPDATE_URL_BASE;
-static const char *fw_update_url_release_name = FW_UPDATE_URL_RELEASE_NAME;
-static const char *fw_update_release_manifest_url = FW_UPDATE_RELEASE_MANIFEST_URL;
-static const char *zb_update_release_manifest_url = ZB_UPDATE_RELEASE_MANIFEST_URL;
-
 // #include "const/hw.h"
 
-/*
 #include "webh/html/PAGE_VPN.html.gz.h"
 #include "webh/html/PAGE_MQTT.html.gz.h"
 #include "webh/html/PAGE_ABOUT.html.gz.h"
@@ -49,21 +31,18 @@ static const char *zb_update_release_manifest_url = ZB_UPDATE_RELEASE_MANIFEST_U
 #include "webh/html/PAGE_TOOLS.html.gz.h"
 #include "webh/html/PAGE_NETWORK.html.gz.h"
 #include "webh/html/PAGE_LOGIN.html.gz.h"
-*/
-/*
+
 #include "webh/js/i18next.min.js.gz.h"
 #include "webh/js/i18nextHttpBackend.min.js.gz.h"
 #include "webh/js/functions.js.gz.h"
 #include "webh/js/bootstrap.bundle.min.js.gz.h"
 #include "webh/js/jquery-min.js.gz.h"
 #include "webh/js/masonry.js.gz.h"
-*/
 
-// #include "webh/css/style.css.gz.h"
-// #include "webh/img/icons.svg.gz.h"
-// #include "webh/img/logo.svg.gz.h"
+#include "webh/css/style.css.gz.h"
+#include "webh/img/icons.svg.gz.h"
+#include "webh/img/logo.svg.gz.h"
 
-/*
 #include "webh/json/en.json.gz.h"
 #include "webh/json/uk.json.gz.h"
 #include "webh/json/zh.json.gz.h"
@@ -77,7 +56,6 @@ static const char *zb_update_release_manifest_url = ZB_UPDATE_RELEASE_MANIFEST_U
 #include "webh/json/it.json.gz.h"
 #include "webh/json/pl.json.gz.h"
 #include "webh/json/cz.json.gz.h"
-*/
 
 // #define HTTP_DOWNLOAD_UNIT_SIZE 3000
 
@@ -90,13 +68,13 @@ static const char *zb_update_release_manifest_url = ZB_UPDATE_RELEASE_MANIFEST_U
 
 extern CCTools CCTool;
 
-extern struct SysVarsStruct vars;
-extern struct ThisConfigStruct hwConfig;
-extern BrdConfigStruct brdConfigs[BOARD_CFG_CNT];
-extern struct SystemConfigStruct systemCfg;
+extern struct SysVarsStruct       vars;
+extern struct ThisConfigStruct    hwConfig;
+extern        BrdConfigStruct     brdConfigs[BOARD_CFG_CNT];
+extern struct SystemConfigStruct  systemCfg;
 extern struct NetworkConfigStruct networkCfg;
-extern struct VpnConfigStruct vpnCfg;
-extern struct MqttConfigStruct mqttCfg;
+extern struct VpnConfigStruct     vpnCfg;
+extern struct MqttConfigStruct    mqttCfg;
 
 extern LEDControl ledControl;
 
@@ -107,38 +85,38 @@ bool wifiWebSetupInProgress = false;
 bool eventOK = false;
 
 // API strings
-const char *argAction = "action";
-const char *argPage = "page";
-const char *argParam = "param";
-const char *argFilename = "filename";
-const char *argCmd = "cmd";
-const char *argUrl = "url";
-const char *argType = "type";
-const char *argConf = "conf";
-const char *argLed = "led";
-const char *argAct = "act";
-const char *apiWrongArgs = "wrong args";
-const char *apiOk = "ok";
-const char *errLink = "Error getting link";
+const char *argAction          = "action";
+const char *argPage            = "page";
+const char *argParam           = "param";
+const char *argFilename        = "filename";
+const char *argCmd             = "cmd";
+const char *argUrl             = "url";
+const char *argConf            = "conf";
+const char *argLed             = "led";
+const char *argAct             = "act";
+const char *apiWrongArgs       = "wrong args";
+const char *apiOk              = "ok";
+const char *errLink            = "Error getting link";
 
 // MIME types
-const char *contTypeTextHtml = "text/html";
-const char *contTypeTextJs = "text/javascript";
-const char *contTypeTextCss = "text/css";
-const char *contTypeTextSvg = "image/svg+xml";
-const char *contTypeJson = "application/json";
+const char *contTypeTextHtml   = "text/html";
+const char *contTypeTextJs     = "text/javascript";
+const char *contTypeTextCss    = "text/css";
+const char *contTypeTextSvg    = "image/svg+xml";
+const char *contTypeJson       = "application/json";
+const char *contTypeText       = "text/plain";
 
 // Misc. strings
-const char *checked = "true";
-const char *respHeaderName = "respValuesArr";
-const char *respTimeZonesName = "respTimeZones";
-const char *tempFile = "/fw.hex";
+const char *checked            = "true";
+const char *respHeaderName     = "respValuesArr";
+const char *respTimeZonesName  = "respTimeZones";
+const char *tempFile           = "/fw.hex";
 
 bool opened = false;
 File fwFile;
 
-// extern bool loadFileConfigMqtt();
-// extern bool loadFileConfigWg();
+extern bool loadFileConfigMqtt();
+extern bool loadFileConfigWg();
 
 WebServer serverWeb(80);
 
@@ -146,56 +124,56 @@ WiFiClient eventsClient;
 
 // apiHandler() handler functions,
 // listed in index order
-static void apiDefault();
-static void apiGetPage();
-static void apiGetParam();
-static void apiStartWifiScan();
-static void apiWifiScanStatus();
-static void apiGetLog();
-static void apiCmd();
-static void apiWifiConnnectStat();
-static void apiGetFile();
-static void apiDelFile();
-static void apiGetFileList();
+static void apiDefault          ();
+static void apiGetPage          ();
+static void apiGetParam         ();
+static void apiStartWifiScan    ();
+static void apiWifiScanStatus   ();
+static void apiGetLog           ();
+static void apiCmd              ();
+static void apiWifiConnnectStat ();
+static void apiGetFile          ();
+static void apiDelFile          ();
+static void apiGetFileList      ();
 
 // apiCMD() handler functions,
 // listed in index order
-static void apiCmdDefault(String &result);
-static void apiCmdZbRouterRecon(String &result);
-static void apiCmdZbRestart(String &result);
-static void apiCmdZbEnableBsl(String &result);
-static void apiCmdEspReset(String &result);
-static void apiCmdAdapterLan(String &result);
-static void apiCmdAdapterUsb(String &result);
-static void apiCmdLedAct(String &result);
-static void apiCmdZbFlash(String &result);
-static void apiCmdClearLog(String &result);
-static void apiCmdUpdateUrl(String &result);
-static void apiCmdZbCheckFirmware(String &result);
-static void apiCmdZbLedToggle(String &result);
-static void apiCmdFactoryReset(String &result);
-static void apiCmdDnsCheck(String &result);
-static void apiCmdBoardName(String &result);
+static void apiCmdDefault         (String &result);
+static void apiCmdZbRouterRecon   (String &result);
+static void apiCmdZbRestart       (String &result);
+static void apiCmdZbEnableBsl     (String &result);
+static void apiCmdEspReset        (String &result);
+static void apiCmdAdapterLan      (String &result);
+static void apiCmdAdapterUsb      (String &result);
+static void apiCmdLedAct          (String &result);
+static void apiCmdZbFlash         (String &result);
+static void apiCmdClearLog        (String &result);
+static void apiCmdUpdateUrl       (String &result);
+static void apiCmdZbCheckFirmware (String &result);
+static void apiCmdZbLedToggle     (String &result);
+static void apiCmdFactoryReset    (String &result);
+static void apiCmdDnsCheck        (String &result);
+static void apiCmdBoardName       (String &result);
 
 // functions called exactly once each
 // from getRootData():
-static inline void getRootEthTab(DynamicJsonDocument &doc,
-                                 bool update,
-                                 const String &noConn);
-static inline void getRootWifi(DynamicJsonDocument &doc,
-                               bool update,
-                               const String &noConn);
-static inline void getRootHwMisc(DynamicJsonDocument &doc,
-                                 bool update);
-static inline void getRootVpnWireGuard(DynamicJsonDocument &doc);
-static inline void getRootVpnHusarnet(DynamicJsonDocument &doc);
-static inline void getRootUptime(DynamicJsonDocument &doc);
-static inline void getRootCpuTemp(DynamicJsonDocument &doc);
-static inline void getRootOneWireTemp(DynamicJsonDocument &doc);
-static inline void getRootHeapsize(DynamicJsonDocument &doc);
-static inline void getRootNvsStats(DynamicJsonDocument &doc);
-static inline void getRootSockets(DynamicJsonDocument &doc);
-static inline void getRootTime(DynamicJsonDocument &doc);
+static inline void getRootEthTab       (DynamicJsonDocument &doc,
+                                        bool update,
+                                        const String &noConn);
+static inline void getRootWifi         (DynamicJsonDocument &doc,
+                                        bool update,
+                                        const String &noConn);
+static inline void getRootHwMisc       (DynamicJsonDocument &doc,
+                                        bool update);
+static inline void getRootVpnWireGuard (DynamicJsonDocument &doc);
+static inline void getRootVpnHusarnet  (DynamicJsonDocument &doc);
+static inline void getRootUptime       (DynamicJsonDocument &doc);
+static inline void getRootCpuTemp      (DynamicJsonDocument &doc);
+static inline void getRootOneWireTemp  (DynamicJsonDocument &doc);
+static inline void getRootHeapsize     (DynamicJsonDocument &doc);
+static inline void getRootNvsStats     (DynamicJsonDocument &doc);
+static inline void getRootSockets      (DynamicJsonDocument &doc);
+static inline void getRootTime         (DynamicJsonDocument &doc);
 
 void webServerHandleClient()
 {
@@ -212,7 +190,7 @@ void redirectLogin(int msg = 0)
 
     serverWeb.sendHeader("Location", path);
     serverWeb.sendHeader("Cache-Control", "no-cache");
-    serverWeb.send(HTTP_CODE_MOVED_PERMANENTLY);
+    serverWeb.send(301);
 }
 
 void handleLoader()
@@ -226,14 +204,12 @@ void handleLoader()
         redirectLogin();
         return;
     }
-    // sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
-    sendGzipFromFS("/html/loader.html.gz", contTypeTextHtml);
+    sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
 }
 
 void initWebServer()
 {
     /* ----- LANG FILES | START -----*/
-    /*
     serverWeb.on("/lg/en.json", []()
                  { sendGzip(contTypeJson, en_json_gz, en_json_gz_len); });
     serverWeb.on("/lg/uk.json", []()
@@ -260,81 +236,28 @@ void initWebServer()
                  { sendGzip(contTypeJson, pl_json_gz, pl_json_gz_len); });
     serverWeb.on("/lg/cz.json", []()
                  { sendGzip(contTypeJson, cz_json_gz, cz_json_gz_len); });
-                 */
-    serverWeb.on("/lg/en.json", []()
-                 { sendGzipFromFS("/json/en.json.gz", contTypeJson); });
-    serverWeb.on("/lg/uk.json", []()
-                 { sendGzipFromFS("/json/uk.json.gz", contTypeJson); });
-    serverWeb.on("/lg/zh.json", []()
-                 { sendGzipFromFS("/json/zh.json.gz", contTypeJson); });
-    serverWeb.on("/lg/es.json", []()
-                 { sendGzipFromFS("/json/es.json.gz", contTypeJson); });
-    serverWeb.on("/lg/pt.json", []()
-                 { sendGzipFromFS("/json/pt.json.gz", contTypeJson); });
-    serverWeb.on("/lg/ru.json", []()
-                 { sendGzipFromFS("/json/ru.json.gz", contTypeJson); });
-    serverWeb.on("/lg/fr.json", []()
-                 { sendGzipFromFS("/json/fr.json.gz", contTypeJson); });
-    serverWeb.on("/lg/de.json", []()
-                 { sendGzipFromFS("/json/de.json.gz", contTypeJson); });
-    serverWeb.on("/lg/ja.json", []()
-                 { sendGzipFromFS("/json/ja.json.gz", contTypeJson); });
-    serverWeb.on("/lg/tr.json", []()
-                 { sendGzipFromFS("/json/tr.json.gz", contTypeJson); });
-    serverWeb.on("/lg/it.json", []()
-                 { sendGzipFromFS("/json/it.json.gz", contTypeJson); });
-    serverWeb.on("/lg/pl.json", []()
-                 { sendGzipFromFS("/json/pl.json.gz", contTypeJson); });
-    serverWeb.on("/lg/cz.json", []()
-                 { sendGzipFromFS("/json/cz.json.gz", contTypeJson); });
-    serverWeb.on("/lg/hu.json", []()
-                 { sendGzipFromFS("/json/hu.json.gz", contTypeJson); });
-                              
-
     /* ----- LANG FILES | END -----*/
     /* ----- JS and CSS FILES | START -----*/
-    /*
     serverWeb.on("/js/i18next.min.js", []()
                  { sendGzip(contTypeTextJs, i18next_min_js_gz, i18next_min_js_gz_len); });
-serverWeb.on("/js/i18nextHttpBackend.min.js", []()
-             { sendGzip(contTypeTextJs, i18nextHttpBackend_min_js_gz, i18nextHttpBackend_min_js_gz_len); });
-serverWeb.on("/js/bootstrap.bundle.min.js", []()
-             { sendGzip(contTypeTextJs, bootstrap_bundle_min_js_gz, bootstrap_bundle_min_js_gz_len); });
-serverWeb.on("/js/masonry.js", []()
-             { sendGzip(contTypeTextJs, masonry_js_gz, masonry_js_gz_len); });
-serverWeb.on("/js/functions.js", []()
-             { sendGzip(contTypeTextJs, functions_js_gz, functions_js_gz_len); });
-serverWeb.on("/js/jquery-min.js", []()
-             { sendGzip(contTypeTextJs, jquery_min_js_gz, jquery_min_js_gz_len); });
-             */
-    serverWeb.on("/js/i18next.min.js", []()
-                 { sendGzipFromFS("/js/i18next.min.js.gz", contTypeTextJs); });
     serverWeb.on("/js/i18nextHttpBackend.min.js", []()
-                 { sendGzipFromFS("/js/i18nextHttpBackend.min.js.gz", contTypeTextJs); });
+                 { sendGzip(contTypeTextJs, i18nextHttpBackend_min_js_gz, i18nextHttpBackend_min_js_gz_len); });
     serverWeb.on("/js/bootstrap.bundle.min.js", []()
-                 { sendGzipFromFS("/js/bootstrap.bundle.min.js.gz", contTypeTextJs); });
+                 { sendGzip(contTypeTextJs, bootstrap_bundle_min_js_gz, bootstrap_bundle_min_js_gz_len); });
     serverWeb.on("/js/masonry.js", []()
-                 { sendGzipFromFS("/js/masonry.js.gz", contTypeTextJs); });
+                 { sendGzip(contTypeTextJs, masonry_js_gz, masonry_js_gz_len); });
     serverWeb.on("/js/functions.js", []()
-                 { sendGzipFromFS("/js/functions.js.gz", contTypeTextJs); });
+                 { sendGzip(contTypeTextJs, functions_js_gz, functions_js_gz_len); });
     serverWeb.on("/js/jquery-min.js", []()
-                 { sendGzipFromFS("/js/jquery-min.js.gz", contTypeTextJs); });
-
-    /*serverWeb.on("/css/style.css", []()
-                 { sendGzip(contTypeTextCss, required_css_gz, required_css_gz_len); });*/
+                 { sendGzip(contTypeTextJs, jquery_min_js_gz, jquery_min_js_gz_len); });
     serverWeb.on("/css/style.css", []()
-                 { sendGzipFromFS("/css/style.css.gz", contTypeTextCss); });
+                 { sendGzip(contTypeTextCss, required_css_gz, required_css_gz_len); });
     /* ----- JS and CSS FILES  | END -----*/
     /* ----- SVG FILES | START -----*/
-    /* serverWeb.on("/logo.svg", []()
-                 { sendGzip(contTypeTextSvg, logo_svg_gz, logo_svg_gz_len); }); */
     serverWeb.on("/logo.svg", []()
-                 { sendGzipFromFS("/img/logo.svg.gz", contTypeTextSvg); });
-
+                 { sendGzip(contTypeTextSvg, logo_svg_gz, logo_svg_gz_len); });
     serverWeb.on("/icons.svg", []()
-                 { sendGzipFromFS("/img/icons.svg.gz", contTypeTextSvg); });
-    /* serverWeb.on("/icons.svg", []()
-                  { sendGzip(contTypeTextSvg, icons_svg_gz, icons_svg_gz_len); }); */
+                 { sendGzip(contTypeTextSvg, icons_svg_gz, icons_svg_gz_len); });
 
     serverWeb.onNotFound(handleNotFound);
 
@@ -377,8 +300,8 @@ serverWeb.on("/js/jquery-min.js", []()
 
     /* ----- OTA | END -----*/
 
-    const char *headerkeys[] = {"Content-Length", "Cookie"};
-    constexpr size_t headerkeyssize = sizeof(headerkeys) / sizeof(char *);
+    const char       *headerkeys[]   = {"Content-Length", "Cookie"};
+    constexpr size_t  headerkeyssize = sizeof(headerkeys) / sizeof(char *);
     serverWeb.collectHeaders(headerkeys, headerkeyssize);
     serverWeb.begin();
     LOGD("done");
@@ -395,7 +318,7 @@ bool captivePortal()
         {
             LOGD("Request redirected to captive portal");
             serverWeb.sendHeader("Location", String("http://") + apIP.toString(), true);
-            serverWeb.send(HTTP_CODE_FOUND, contTypeText, "");
+            serverWeb.send(302, "text/plain", "");
             serverWeb.client().stop();
             return true;
         }
@@ -434,21 +357,25 @@ void handleNotFound()
 
     for (uint8_t i = 0; i < serverWeb.args(); i++)
     {
-        message += String(F(" ")) + serverWeb.argName(i) + F(": ") + serverWeb.arg(i) + F("\n");
+        message += String(F(" "))
+                   + serverWeb.argName(i)
+                   + F(": ")
+                   + serverWeb.arg(i)
+                   + F("\n");
     }
-    serverWeb.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    serverWeb.sendHeader("Pragma", "no-cache");
-    serverWeb.sendHeader("Expires", "-1");
-    serverWeb.send(HTTP_CODE_NOT_FOUND, contTypeText, message);
+    serverWeb.sendHeader ("Cache-Control", "no-cache, no-store, must-revalidate");
+    serverWeb.sendHeader ("Pragma", "no-cache");
+    serverWeb.sendHeader ("Expires", "-1");
+    serverWeb.send       (404, "text/plain", message);
 }
 
 void handleUpdateRequest()
 {
-    serverWeb.sendHeader("Connection",
-                         "close");
-    serverWeb.send(HTTP_CODE_OK,
-                   contTypeText,
-                   "Upload OK. Try to flash...");
+    serverWeb.sendHeader ("Connection",
+                          "close");
+    serverWeb.send       (HTTP_CODE_OK,
+                          contTypeText,
+                          "Upload OK. Try to flash...");
 }
 
 void handleEspUpdateUpload()
@@ -460,35 +387,21 @@ void handleEspUpdateUpload()
 
     HTTPUpload &upload = serverWeb.upload();
     static long contentLength = 0;
-    static bool isSpiffsUpdate = false;
-
     if (upload.status == UPLOAD_FILE_START)
     {
         contentLength = serverWeb.header("Content-Length").toInt();
-        String filename = upload.filename.c_str();
-        LOGD("hostHeader: %s", serverWeb.hostHeader().c_str());
-        LOGD("contentLength: %s", String(contentLength).c_str());
-        LOGD("Update ESP from file %s size: %s", filename.c_str(), String(upload.totalSize).c_str());
-        LOGD("upload.currentSize %s", String(upload.currentSize).c_str());
-
-        // Определяем, является ли это обновлением файловой системы
-        if (filename.endsWith(".fs.bin"))
+        LOGD ("hostHeader: %s",
+              serverWeb.hostHeader());
+        LOGD ("contentLength: %s",
+              String(contentLength));
+        LOGD ("Update ESP from file %s size: %s",
+              String(upload.filename.c_str()),
+              String(upload.totalSize));
+        LOGD ("upload.currentSize %s",
+              String(upload.currentSize));
+        if (!Update.begin(contentLength))
         {
-            isSpiffsUpdate = true;
-            if (!Update.begin(contentLength, U_SPIFFS)) // contentLength
-            {
-                Update.printError(Serial);
-                return;
-            }
-        }
-        else
-        {
-            isSpiffsUpdate = false;
-            if (!Update.begin(contentLength, U_FLASH)) // contentLength
-            {
-                Update.printError(Serial);
-                return;
-            }
+            Update.printError(Serial);
         }
         Update.onProgress(progressFunc);
     }
@@ -503,29 +416,14 @@ void handleEspUpdateUpload()
     {
         if (Update.end(true))
         {
-            serverWeb.send(HTTP_CODE_OK, contTypeText, "");
-            if (isSpiffsUpdate)
-            {
-                LOGD("SPIFFS Update success. Rebooting...");
-            }
-            else
-            {
-                LOGD("Firmware Update success. Rebooting...");
-            }
-            restartDevice();
+            LOGD("Update success. Rebooting...");
+            ESP.restart();
         }
         else
         {
-            serverWeb.send(HTTP_CODE_NOT_FOUND, contTypeText, "Error");
             LOGD("Update error: ");
             Update.printError(Serial);
         }
-    }
-    else if (upload.status == UPLOAD_FILE_ABORTED)
-    {
-        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "Aborted");
-        Update.end();
-        LOGD("Update aborted");
     }
 }
 
@@ -540,13 +438,13 @@ void handleEvents()
         eventsClient = serverWeb.client();
         if (eventsClient)
         {
-            eventsClient.println("HTTP/1.1 200 OK");
-            eventsClient.println("Content-Type: text/event-stream;");
-            eventsClient.println("Connection: close");
-            eventsClient.println("Access-Control-Allow-Origin: *");
-            eventsClient.println("Cache-Control: no-cache");
-            eventsClient.println();
-            eventsClient.flush();
+            eventsClient.println ("HTTP/1.1 200 OK");
+            eventsClient.println ("Content-Type: text/event-stream;");
+            eventsClient.println ("Connection: close");
+            eventsClient.println ("Access-Control-Allow-Origin: *");
+            eventsClient.println ("Cache-Control: no-cache");
+            eventsClient.println ();
+            eventsClient.flush   ();
         }
     }
 }
@@ -565,48 +463,20 @@ void sendEvent(const char *event,
     }
 }
 
-void sendGzipFromFS(const char *path, const char *contentType)
-{
-    File file = LittleFS.open(path, FILE_READ);
-    if (!file)
-    {
-        serverWeb.send(HTTP_CODE_NOT_FOUND, contTypeText, "File not found");
-        LOGD("File not found: %s", path);
-        return;
-    }
-
-    size_t fileSize = file.size();
-    if (fileSize == 0)
-    {
-        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "File is empty");
-        LOGD("File is empty: %s", path);
-        file.close();
-        return;
-    }
-
-    LOGD("File - %s, Size - %d", path, fileSize);
-
-    serverWeb.streamFile(file, contentType);
-    file.close();
-}
-
-/*
 void sendGzip(const char *contentType,
               const uint8_t content[],
               uint16_t contentLen)
 {
-    serverWeb.sendHeader(F("Content-Encoding"),
-                         F("gzip"));
-    serverWeb.send_P(HTTP_CODE_OK,
-                     contentType,
-                     (const char *)content,
-                     contentLen);
+    serverWeb.sendHeader (F("Content-Encoding"),
+                          F("gzip"));
+    serverWeb.send_P     (HTTP_CODE_OK,
+                          contentType,
+                          (const char *)content,
+                          contentLen);
 }
-*/
 
 // This isn't called from anywhere,
 // does it even work?
-/*
 void hex2bin(uint8_t *out, const char *in)
 {
     // uint8_t sz = 0;
@@ -629,7 +499,6 @@ void hex2bin(uint8_t *out, const char *in)
         // sz++;
     }
 }
-*/
 
 static void apiGetLog()
 {
@@ -646,18 +515,14 @@ static void apiCmdUpdateUrl(String &result)
     }
     else
     {
-        if (serverWeb.hasArg(argType))
+        String link = fetchLatestEspFw();
+        if (link)
         {
-            // String link = fetchLatestEspFw();
-            FirmwareInfo fwInfo = fetchLatestEspFw(serverWeb.arg(argType));
-            if (fwInfo.url)
-            {
-                getEspUpdate(fwInfo.url);
-            }
-            else
-            {
-                LOGW("%s", String(errLink).c_str());
-            }
+            getEspUpdate(link);
+        }
+        else
+        {
+            LOGW("%s", String(errLink));
         }
     }
 }
@@ -666,7 +531,6 @@ static void apiCmdZbCheckFirmware(String &result)
 {
     if (zbFwCheck())
     {
-        printLogMsg("[RCP] " + CCTool.chip.fwRev);
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
     else
@@ -710,7 +574,7 @@ static void apiCmdLedAct(String &result)
         int ledNum = serverWeb.arg(argLed).toInt();
         int actNum = serverWeb.arg(argAct).toInt();
 
-        LED_t ledEnum = static_cast<LED_t>(ledNum);
+        LED_t   ledEnum = static_cast<LED_t>(ledNum);
         LEDMode actEnum = static_cast<LEDMode>(actNum);
 
         if (static_cast<int>(ledEnum) == ledNum && static_cast<int>(actEnum) == actNum)
@@ -719,12 +583,12 @@ static void apiCmdLedAct(String &result)
             serverWeb.send(HTTP_CODE_OK, contTypeText, result);
             if (ledNum == MODE_LED)
             {
-                LOGD("%s led %d", ledControl.modeLED.name.c_str(), actNum);
+                LOGD("%s led %d", ledControl.modeLED.name, actNum);
                 ledControl.modeLED.mode = static_cast<LEDMode>(actNum);
             }
             else if (ledNum == POWER_LED)
             {
-                LOGD("%s led %d", ledControl.powerLED.name.c_str(), actNum);
+                LOGD("%s led %d", ledControl.powerLED.name, actNum);
                 ledControl.powerLED.mode = static_cast<LEDMode>(actNum);
             }
         }
@@ -745,8 +609,7 @@ static void apiCmdZbFlash(String &result)
     {
         flashZbUrl(serverWeb.arg(argUrl));
     }
-    else
-    {
+    else {
         String link = fetchLatestZbFw();
         if (link)
         {
@@ -754,7 +617,7 @@ static void apiCmdZbFlash(String &result)
         }
         else
         {
-            LOGW("%s", String(errLink).c_str());
+            LOGW("%s", String(errLink));
         }
     }
 }
@@ -766,7 +629,7 @@ static void apiCmdBoardName(String &result)
         String brdName = serverWeb.arg("board");
         brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
 
-        /*File configFile = LittleFS.open(configFileHw, FILE_READ);
+        File configFile = LittleFS.open(configFileHw, FILE_READ);
         if (!configFile)
         {
             Serial.println("Failed to open config file for reading");
@@ -785,14 +648,7 @@ static void apiCmdBoardName(String &result)
         configFile.close();
         config["board"] = hwConfig.board;
 
-        writeDefaultConfig(configFileHw, config);*/
-
-        brdName.toCharArray(hwConfig.board, sizeof(hwConfig.board));
-
-        hwConfig.board[sizeof(hwConfig.board) - 1] = '\0';
-
-        saveHwConfig(hwConfig);
-
+        writeDefaultConfig(configFileHw, config);
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
     else
@@ -825,7 +681,7 @@ static void apiCmdEspReset(String &result)
 {
     serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     delay(250);
-    restartDevice();
+    ESP.restart();
 }
 
 static void apiCmdAdapterLan(String &result)
@@ -855,31 +711,32 @@ static void apiCmdEraseNvram(String &result)
 
 static void apiCmdDnsCheck(String &result)
 {
-    // checkDNS();
+    checkDNS();
 }
 
 static void apiCmd()
 {
     static void (*apiCmdFunctions[])(String &result) =
-        {
-            apiCmdDefault,
-            apiCmdZbRouterRecon,
-            apiCmdZbRestart,
-            apiCmdZbEnableBsl,
-            apiCmdEspReset,
-            apiCmdAdapterLan,
-            apiCmdAdapterUsb,
-            apiCmdLedAct,
-            apiCmdZbFlash,
-            apiCmdClearLog,
-            apiCmdUpdateUrl,
-            apiCmdZbCheckFirmware,
-            apiCmdZbCheckHardware,
-            apiCmdZbLedToggle,
-            apiCmdFactoryReset,
-            apiCmdEraseNvram,
-            apiCmdDnsCheck,
-            apiCmdBoardName};
+    {
+        apiCmdDefault,
+        apiCmdZbRouterRecon,
+        apiCmdZbRestart,
+        apiCmdZbEnableBsl,
+        apiCmdEspReset,
+        apiCmdAdapterLan,
+        apiCmdAdapterUsb,
+        apiCmdLedAct,
+        apiCmdZbFlash,
+        apiCmdClearLog,
+        apiCmdUpdateUrl,
+        apiCmdZbCheckFirmware,
+        apiCmdZbCheckHardware,
+        apiCmdZbLedToggle,
+        apiCmdFactoryReset,
+        apiCmdEraseNvram,
+        apiCmdDnsCheck,
+        apiCmdBoardName
+    };
     constexpr int numFunctions = sizeof(apiCmdFunctions) / sizeof(apiCmdFunctions[0]);
     String result = apiWrongArgs;
 
@@ -890,13 +747,14 @@ static void apiCmd()
         // I add 1 to allow 0 to be default+overflow/invalid case.
         // Ideally, the client would send 1-indexed "cmd"s
         // but then I'd need to modify this in ALL of the client code...
-        uint8_t command = serverWeb.arg(argCmd).toInt() + 1;
-        bool boundsCheck = command < numFunctions;
+        uint8_t command     = serverWeb.arg(argCmd).toInt() + 1;
+        bool    boundsCheck = command < numFunctions;
 
         apiCmdFunctions[command * boundsCheck](result);
 
         serverWeb.send(HTTP_CODE_OK, contTypeText, result);
     }
+
 }
 
 static void apiWifiConnnectStat()
@@ -907,7 +765,7 @@ static void apiWifiConnnectStat()
     if (WiFi.status() == WL_CONNECTED)
     {
         doc[connected] = true;
-        doc["ip"] = WiFi.localIP().toString();
+        doc["ip"]      = WiFi.localIP().toString();
     }
     else
     {
@@ -930,8 +788,7 @@ static void apiGetFile()
             return;
         }
         result = "";
-        while (file.available() && result.length() < 500)
-        {
+        while (file.available() && result.length() < 500) {
             result += (char)file.read();
         }
         file.close();
@@ -1023,11 +880,11 @@ static void apiStartWifiScan()
 
 static void apiWifiScanStatus()
 {
-    static uint8_t timeout = 0;
-    DynamicJsonDocument doc(1024);
-    String result = "";
-    int16_t scanRes = WiFi.scanComplete();
-    const char *scanDone = "scanDone";
+    static uint8_t       timeout  = 0;
+    DynamicJsonDocument  doc(1024);
+    String               result   = "";
+    int16_t              scanRes  = WiFi.scanComplete();
+    const char          *scanDone = "scanDone";
 
     doc[scanDone] = false;
     if (scanRes == -2)
@@ -1041,10 +898,10 @@ static void apiWifiScanStatus()
         for (int i = 0; i < scanRes; ++i)
         {
             JsonObject wifi_0 = wifi.createNestedObject();
-            wifi_0["ssid"] = WiFi.SSID(i);
-            wifi_0["rssi"] = WiFi.RSSI(i);
+            wifi_0["ssid"]    = WiFi.SSID(i);
+            wifi_0["rssi"]    = WiFi.RSSI(i);
             wifi_0["channel"] = WiFi.channel(i);
-            wifi_0["secure"] = WiFi.encryptionType(i);
+            wifi_0["secure"]  = WiFi.encryptionType(i);
         }
         WiFi.scanDelete();
     }
@@ -1066,56 +923,47 @@ static void apiGetPage()
 {
     if (!serverWeb.arg(argPage).length())
     {
-        LOGW("wrong arg 'page' %s", serverWeb.argName(1).c_str());
-        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, apiWrongArgs);
+        LOGW("wrong arg 'page' %s", serverWeb.argName(1));
+        serverWeb.send(500, contTypeText, apiWrongArgs);
         return;
     }
     switch (serverWeb.arg(argPage).toInt())
     {
     case API_PAGE_ROOT:
         handleRoot();
-        // sendGzip(contTypeTextHtml, PAGE_ROOT_html_gz, PAGE_ROOT_html_gz_len);
-        sendGzipFromFS("/html/root.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_ROOT_html_gz, PAGE_ROOT_html_gz_len);
         break;
     case API_PAGE_GENERAL:
         handleGeneral();
-        // sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
-        sendGzipFromFS("/html/general.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_GENERAL_html_gz, PAGE_GENERAL_html_gz_len);
         break;
     case API_PAGE_NETWORK:
         handleNetwork();
-        // sendGzip(contTypeTextHtml, PAGE_NETWORK_html_gz, PAGE_NETWORK_html_gz_len);
-        sendGzipFromFS("/html/network.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_NETWORK_html_gz, PAGE_NETWORK_html_gz_len);
         break;
     case API_PAGE_ZIGBEE:
         handleSerial();
-        // sendGzip(contTypeTextHtml, PAGE_ZIGBEE_html_gz, PAGE_ZIGBEE_html_gz_len);
-        sendGzipFromFS("/html/zigbee.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_ZIGBEE_html_gz, PAGE_ZIGBEE_html_gz_len);
         break;
     case API_PAGE_SECURITY:
         handleSecurity();
-        // sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
-        sendGzipFromFS("/html/security.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_SECURITY_html_gz, PAGE_SECURITY_html_gz_len);
         break;
     case API_PAGE_TOOLS:
         handleTools();
-        // sendGzip(contTypeTextHtml, PAGE_TOOLS_html_gz, PAGE_TOOLS_html_gz_len);
-        sendGzipFromFS("/html/tools.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_TOOLS_html_gz, PAGE_TOOLS_html_gz_len);
         break;
     case API_PAGE_ABOUT:
         // handleAbout();
-        // sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
-        sendGzipFromFS("/html/about.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_ABOUT_html_gz, PAGE_ABOUT_html_gz_len);
         break;
     case API_PAGE_MQTT:
         handleMqtt();
-        // sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
-        sendGzipFromFS("/html/mqtt.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_MQTT_html_gz, PAGE_MQTT_html_gz_len);
         break;
     case API_PAGE_VPN:
         handleVpn();
-        // sendGzip(contTypeTextHtml, PAGE_VPN_html_gz, PAGE_VPN_html_gz_len);
-        sendGzipFromFS("/html/vpn.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_VPN_html_gz, PAGE_VPN_html_gz_len);
         break;
     default:
         break;
@@ -1127,8 +975,6 @@ static void apiGetFileList()
     String fileList = "";
     DynamicJsonDocument doc(512);
     JsonArray files = doc.createNestedArray("files");
-
-    // Открываем корневую директорию
     File root = LittleFS.open("/");
     File file = root.openNextFile();
     while (file)
@@ -1136,24 +982,17 @@ static void apiGetFileList()
         JsonObject jsonfile = files.createNestedObject();
         jsonfile["filename"] = String(file.name());
         jsonfile["size"] = file.size();
-        file.close(); // Закрываем файл после использования
         file = root.openNextFile();
     }
-    root.close(); // Закрываем корневую директорию
-
-    // Открываем директорию /x/
-    root = LittleFS.open("/x/");
+    root = LittleFS.open("/config/");
     file = root.openNextFile();
     while (file)
     {
         JsonObject jsonfile = files.createNestedObject();
-        jsonfile["filename"] = String("/x/" + String(file.name()));
+        jsonfile["filename"] = String("/config/" + String(file.name()));
         jsonfile["size"] = file.size();
-        file.close(); // Закрываем файл после использования
         file = root.openNextFile();
     }
-    root.close(); // Закрываем директорию /x/
-
     serializeJson(doc, fileList);
     serverWeb.send(HTTP_CODE_OK, contTypeJson, fileList);
 }
@@ -1178,29 +1017,27 @@ void handleApi()
         apiWifiScanStatus,
         apiGetFileList,
         apiGetFile,
-        apiDefault, // invoked by what was previously API_SEND_HEX.
+        apiDefault,   // invoked by what was previously API_SEND_HEX.
         apiWifiConnnectStat,
         apiCmd,
         apiGetLog,
-        apiDelFile};
+        apiDelFile
+    };
     constexpr int numFunctions = sizeof(apiFunctions) / sizeof(apiFunctions[0]);
-    if (!is_authenticated())
-    {
+    if (!is_authenticated()) {
         redirectLogin(1);
         return;
     }
-    if (serverWeb.argName(0) == argAction)
-    {
+    if (serverWeb.argName(0) == argAction) {
         // I add 1 to allow 0 to be default+overflow/invalid case.
         // Ideally, the client would send 1-indexed "action"s
         // but then I'd need to modify this in ALL of the client code...
-        const uint8_t action = serverWeb.arg(argAction).toInt() + 1;
-        const bool boundsCheck = action < numFunctions;
+        const uint8_t action      = serverWeb.arg(argAction).toInt() + 1;
+        const bool    boundsCheck = action < numFunctions;
         apiFunctions[action * boundsCheck]();
     }
-    else
-    {
-        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, apiWrongArgs);
+    else {
+        serverWeb.send(500, contTypeText, apiWrongArgs);
     }
 }
 
@@ -1255,15 +1092,14 @@ void handleLoginGet()
     if (!is_authenticated())
     {
         // LOGD("handleLoginGet !is_authenticated");
-        // sendGzip(contTypeTextHtml, PAGE_LOGIN_html_gz, PAGE_LOGIN_html_gz_len);
-        sendGzipFromFS("/html/login.html.gz", contTypeTextHtml);
+        sendGzip(contTypeTextHtml, PAGE_LOGIN_html_gz, PAGE_LOGIN_html_gz_len);
     }
     else
     {
         // LOGD("handleLoginGet else");
         serverWeb.sendHeader("Location", "/");
         serverWeb.sendHeader("Cache-Control", "no-cache");
-        serverWeb.send(HTTP_CODE_MOVED_PERMANENTLY);
+        serverWeb.send(301);
         // sendGzip(contTypeTextHtml, PAGE_LOADER_html_gz, PAGE_LOADER_html_gz_len);
     }
 }
@@ -1292,7 +1128,7 @@ void handleLoginPost()
             String token = sha1(String(systemCfg.webUser) + ":" + String(systemCfg.webPass) + ":" + serverWeb.client().remoteIP().toString());
             serverWeb.sendHeader("Set-Cookie", "XZG_UID=" + token);
 
-            serverWeb.send(HTTP_CODE_MOVED_PERMANENTLY);
+            serverWeb.send(301);
             // Serial.println("Log in Successful");
             return;
         }
@@ -1440,8 +1276,7 @@ void handleSecurity()
     {
         doc[fwEnabledKey] = checked;
     }
-    doc[fwIpKey] = systemCfg.fwIp;     //.toString();
-    doc[fwMaskKey] = systemCfg.fwMask; //.toString();
+    doc[fwIpKey] = systemCfg.fwIp; //.toString();
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1487,59 +1322,59 @@ void handleNetwork()
 
     switch (networkCfg.wifiMode)
     {
-    case WIFI_PROTOCOL_11B:
-        doc["1"] = checked;
-        break;
-    case WIFI_PROTOCOL_11G:
-        doc["2"] = checked;
-        break;
-    case WIFI_PROTOCOL_11N:
-        doc["4"] = checked;
-        break;
-    case WIFI_PROTOCOL_LR:
-        doc["8"] = checked;
-        break;
-    default:
-        break;
+        case WIFI_PROTOCOL_11B:
+            doc["1"] = checked;
+            break;
+        case WIFI_PROTOCOL_11G:
+            doc["2"] = checked;
+            break;
+        case WIFI_PROTOCOL_11N:
+            doc["4"] = checked;
+            break;
+        case WIFI_PROTOCOL_LR:
+            doc["8"] = checked;
+            break;
+        default:
+            break;
     }
 
     switch (networkCfg.wifiPower)
     {
-    case WIFI_POWER_19_5dBm:
-        doc["78"] = checked;
-        break;
-    case WIFI_POWER_19dBm:
-        doc["76"] = checked;
-        break;
-    case WIFI_POWER_18_5dBm:
-        doc["74"] = checked;
-        break;
-    case WIFI_POWER_17dBm:
-        doc["68"] = checked;
-        break;
-    case WIFI_POWER_15dBm:
-        doc["60"] = checked;
-        break;
-    case WIFI_POWER_13dBm:
-        doc["52"] = checked;
-        break;
-    case WIFI_POWER_11dBm:
-        doc["44"] = checked;
-        break;
-    case WIFI_POWER_8_5dBm:
-        doc["34"] = checked;
-        break;
-    case WIFI_POWER_7dBm:
-        doc["28"] = checked;
-        break;
-    case WIFI_POWER_5dBm:
-        doc["20"] = checked;
-        break;
-    case WIFI_POWER_2dBm:
-        doc["8"] = checked;
-        break;
-    default:
-        break;
+        case WIFI_POWER_19_5dBm:
+            doc["78"] = checked;
+            break;
+        case WIFI_POWER_19dBm:
+            doc["76"] = checked;
+            break;
+        case WIFI_POWER_18_5dBm:
+            doc["74"] = checked;
+            break;
+        case WIFI_POWER_17dBm:
+            doc["68"] = checked;
+            break;
+        case WIFI_POWER_15dBm:
+            doc["60"] = checked;
+            break;
+        case WIFI_POWER_13dBm:
+            doc["52"] = checked;
+            break;
+        case WIFI_POWER_11dBm:
+            doc["44"] = checked;
+            break;
+        case WIFI_POWER_8_5dBm:
+            doc["34"] = checked;
+            break;
+        case WIFI_POWER_7dBm:
+            doc["28"] = checked;
+            break;
+        case WIFI_POWER_5dBm:
+            doc["20"] = checked;
+            break;
+        case WIFI_POWER_2dBm:
+            doc["8"] = checked;
+            break;
+        default:
+            break;
     }
 
     if (hwConfig.eth.mdcPin == -1 || hwConfig.eth.mdiPin == -1)
@@ -1597,7 +1432,7 @@ void handleSerial()
     }
 
     doc[socketPortKey] = String(systemCfg.socketPort);
-    doc[zbRoleKey] = systemCfg.zbRole;
+    doc[zbRoleKey]     = systemCfg.zbRole;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1612,12 +1447,12 @@ void handleMqtt()
     {
         doc["enableMqtt"] = checked;
     }
-    doc["serverMqtt"] = mqttCfg.server;
-    doc["portMqtt"] = mqttCfg.port;
-    doc["userMqtt"] = mqttCfg.user;
-    doc["passMqtt"] = mqttCfg.pass;
-    doc["topicMqtt"] = mqttCfg.topic;
-    doc["intervalMqtt"] = mqttCfg.updateInt;
+    doc["serverMqtt"]    = mqttCfg.server;
+    doc["portMqtt"]      = mqttCfg.port;
+    doc["userMqtt"]      = mqttCfg.user;
+    doc["passMqtt"]      = mqttCfg.pass;
+    doc["topicMqtt"]     = mqttCfg.topic;
+    doc["intervalMqtt"]  = mqttCfg.updateInt;
     doc["mqttReconnect"] = mqttCfg.reconnectInt;
 
     if (mqttCfg.discovery)
@@ -1638,16 +1473,16 @@ void handleVpn()
     {
         doc[wgEnableKey] = checked;
     }
-    doc[wgLocalIPKey] = vpnCfg.wgLocalIP.toString();
-    doc[wgLocalSubnetKey] = vpnCfg.wgLocalSubnet.toString();
-    doc[wgLocalPortKey] = vpnCfg.wgLocalPort;
+    doc[wgLocalIPKey]      = vpnCfg.wgLocalIP.toString();
+    doc[wgLocalSubnetKey]  = vpnCfg.wgLocalSubnet.toString();
+    doc[wgLocalPortKey]    = vpnCfg.wgLocalPort;
     doc[wgLocalGatewayKey] = vpnCfg.wgLocalGateway.toString();
     doc[wgLocalPrivKeyKey] = vpnCfg.wgLocalPrivKey;
-    doc[wgEndAddrKey] = vpnCfg.wgEndAddr;
-    doc[wgEndPubKeyKey] = vpnCfg.wgEndPubKey;
-    doc[wgEndPortKey] = vpnCfg.wgEndPort;
-    doc[wgAllowedIPKey] = vpnCfg.wgAllowedIP.toString();
-    doc[wgAllowedMaskKey] = vpnCfg.wgAllowedMask.toString();
+    doc[wgEndAddrKey]      = vpnCfg.wgEndAddr;
+    doc[wgEndPubKeyKey]    = vpnCfg.wgEndPubKey;
+    doc[wgEndPortKey]      = vpnCfg.wgEndPort;
+    doc[wgAllowedIPKey]    = vpnCfg.wgAllowedIP.toString();
+    doc[wgAllowedMaskKey]  = vpnCfg.wgAllowedMask.toString();
     if (vpnCfg.wgMakeDefault)
     {
         doc[wgMakeDefaultKey] = checked;
@@ -1660,7 +1495,7 @@ void handleVpn()
     }
     doc[hnJoinCodeKey] = vpnCfg.hnJoinCode;
     doc[hnHostNameKey] = vpnCfg.hnHostName;
-    doc[hnDashUrlKey] = vpnCfg.hnDashUrl;
+    doc[hnDashUrlKey]  = vpnCfg.hnDashUrl;
 
     serializeJson(doc, result);
     serverWeb.sendHeader(respHeaderName, result);
@@ -1672,9 +1507,9 @@ static void getRootEthTab(DynamicJsonDocument &doc,
 {
     // ETHERNET TAB
     const char *ethConn = "ethConn";
-    const char *ethMac = "ethMac";
-    const char *ethSpd = "ethSpd";
-    const char *ethDns = "ethDns";
+    const char *ethMac  = "ethMac";
+    const char *ethSpd  = "ethSpd";
+    const char *ethDns  = "ethDns";
 
     if (networkCfg.ethEnable)
     {
@@ -1682,38 +1517,36 @@ static void getRootEthTab(DynamicJsonDocument &doc,
         {
             doc[ethMac] = ETH.macAddress();
         }
-        doc[ethConn] = vars.connectedEther ? 1 : 0;
+        doc[ethConn]    = vars.connectedEther ? 1 : 0;
         doc[ethDhcpKey] = networkCfg.ethDhcp ? 1 : 0;
         if (vars.connectedEther)
         {
-            doc[ethSpd] = ETH.linkSpeed();
-            doc[ethIpKey] = ETH.localIP().toString();
+            doc[ethSpd]     = ETH.linkSpeed();
+            doc[ethIpKey]   = ETH.localIP().toString();
             doc[ethMaskKey] = ETH.subnetMask().toString();
             doc[ethGateKey] = ETH.gatewayIP().toString();
-            doc[ethDns] = ETH.dnsIP().toString(); // vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
-            if (vars.ethIPv6)
-                doc[ethIPv6Key] = getShortenedIPv6(ETH.localIPv6().toString());
+            doc[ethDns]     = vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
         else
         {
-            doc[ethSpd] = noConn;
-            doc[ethIpKey] = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
+            doc[ethSpd]     = noConn;
+            doc[ethIpKey]   = networkCfg.ethDhcp ? noConn : ETH.localIP().toString();
             doc[ethMaskKey] = networkCfg.ethDhcp ? noConn : ETH.subnetMask().toString();
             doc[ethGateKey] = networkCfg.ethDhcp ? noConn : ETH.gatewayIP().toString();
-            doc[ethDns] = networkCfg.ethDhcp ? noConn : ETH.dnsIP().toString(); // vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
-            doc[ethIPv6Key] = noConn;
+            doc[ethDns]     = networkCfg.ethDhcp ? noConn : vars.savedEthDNS.toString(); // ETH.dnsIP().toString();
         }
     }
+
 }
 
 static inline void getRootWifi(DynamicJsonDocument &doc,
-                               bool update,
-                               const String &noConn)
+                        bool update,
+                        const String &noConn)
 {
     const char *wifiRssi = "wifiRssi";
     const char *wifiConn = "wifiConn";
     const char *wifiMode = "wifiMode";
-    const char *wifiDns = "wifiDns";
+    const char *wifiDns  = "wifiDns";
 
     if (!update)
     {
@@ -1733,7 +1566,9 @@ static inline void getRootWifi(DynamicJsonDocument &doc,
 
                 for (int brdNewIdx = 0; brdNewIdx < BOARD_CFG_CNT; brdNewIdx++)
                 {
-                    if (brdConfigs[brdNewIdx].ethConfigIndex == brdConfigs[boardNum].ethConfigIndex && brdConfigs[brdNewIdx].zbConfigIndex == brdConfigs[boardNum].zbConfigIndex && brdConfigs[brdNewIdx].mistConfigIndex == brdConfigs[boardNum].mistConfigIndex)
+                    if (brdConfigs[brdNewIdx].ethConfigIndex == brdConfigs[boardNum].ethConfigIndex
+                        && brdConfigs[brdNewIdx].zbConfigIndex == brdConfigs[boardNum].zbConfigIndex
+                        && brdConfigs[brdNewIdx].mistConfigIndex == brdConfigs[boardNum].mistConfigIndex)
                     {
                         boardArray[arrayIndex++] = brdConfigs[brdNewIdx].board;
                     }
@@ -1757,28 +1592,27 @@ static inline void getRootWifi(DynamicJsonDocument &doc,
 
     if (networkCfg.wifiEnable)
     {
-        doc[wifiMode] = 1; //"Client";
+        doc[wifiMode]    = 1; //"Client";
         doc[wifiDhcpKey] = networkCfg.wifiDhcp ? 1 : 0;
         if (WiFi.status() == WL_CONNECTED)
         { // STA connected
             doc[wifiSsidKey] = WiFi.SSID();
-            doc[wifiRssi] = WiFi.RSSI();
-            doc[wifiConn] = 1;
-            doc[wifiIpKey] = WiFi.localIP().toString();
+            doc[wifiRssi]    = WiFi.RSSI();
+            doc[wifiConn]    = 1;
+            doc[wifiIpKey]   = WiFi.localIP().toString();
             doc[wifiMaskKey] = WiFi.subnetMask().toString();
             doc[wifiGateKey] = WiFi.gatewayIP().toString();
-            doc[wifiDns] = WiFi.dnsIP().toString(); // vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
-            doc[wifiIPv6Key] = WiFi.localIPv6().toString();
+            doc[wifiDns]     = vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
         else
         {
             doc[wifiSsidKey] = networkCfg.wifiSsid;
-            doc[wifiRssi] = noConn;
-            doc[wifiConn] = 0;
-            doc[wifiIpKey] = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
+            doc[wifiRssi]    = noConn;
+            doc[wifiConn]    = 0;
+            doc[wifiIpKey]   = networkCfg.wifiDhcp ? noConn : WiFi.localIP().toString();
             doc[wifiMaskKey] = networkCfg.wifiDhcp ? noConn : WiFi.subnetMask().toString();
             doc[wifiGateKey] = networkCfg.wifiDhcp ? noConn : WiFi.gatewayIP().toString();
-            doc[wifiDns] = networkCfg.wifiDhcp ? noConn : WiFi.dnsIP().toString(); // vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
+            doc[wifiDns]     = networkCfg.wifiDhcp ? noConn : vars.savedWifiDNS.toString(); // WiFi.dnsIP().toString();
         }
     }
 
@@ -1786,15 +1620,15 @@ static inline void getRootWifi(DynamicJsonDocument &doc,
     { // AP active
         String AP_NameString;
 
-        doc[wifiMode] = 2;
-        doc[wifiConn] = 1;
+        doc[wifiMode]    = 2;
+        doc[wifiConn]    = 1;
         doc[wifiSsidKey] = vars.deviceId;
-        doc[wifiIpKey] = WiFi.localIP().toString(); //"192.168.1.1 (XZG web interface)";
+        doc[wifiIpKey  ] = WiFi.localIP().toString(); //"192.168.1.1 (XZG web interface)";
         doc[wifiMaskKey] = "255.255.255.0 (Access point)";
         doc[wifiGateKey] = "192.168.1.1 (this device)";
         doc[wifiDhcpKey] = "On (Access point)";
-        doc[wifiMode] = 2;      //"AP";
-        doc[wifiRssi] = noConn; //"N/A";
+        doc[wifiMode]    = 2;      //"AP";
+        doc[wifiRssi]    = noConn; //"N/A";
     }
 }
 
@@ -1803,9 +1637,9 @@ static inline void getRootMqtt(DynamicJsonDocument &doc)
     if (mqttCfg.enable)
     {
         const char *mqConnect = "mqConnect";
-        const char *mqBroker = "mqBroker";
+        const char *mqBroker  = "mqBroker";
 
-        doc[mqBroker] = mqttCfg.server;
+        doc[mqBroker]  = mqttCfg.server;
         doc[mqConnect] = vars.mqttConn ? 1 : 0;
     }
 }
@@ -1814,18 +1648,18 @@ static inline void getRootVpnWireGuard(DynamicJsonDocument &doc)
 {
     if (vpnCfg.wgEnable)
     {
-        const char *wgInit = "wgInit";
+        const char *wgInit       = "wgInit";
         const char *wgDeviceAddr = "wgDeviceAddr";
         const char *wgRemoteAddr = "wgRemoteAddr";
-        const char *wgConnect = "wgConnect";
-        const char *wgRemoteIP = "wgRemoteIp";
+        const char *wgConnect    = "wgConnect";
+        const char *wgRemoteIP   = "wgRemoteIp";
         // const char *wgEndPort = "wgEndPort";
 
-        doc[wgInit] = vars.vpnWgInit ? 1 : 0;
+        doc[wgInit]       = vars.vpnWgInit ? 1 : 0;
         doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();
         doc[wgRemoteAddr] = vpnCfg.wgEndAddr;
-        doc[wgConnect] = vars.vpnWgConnect ? 1 : 0;
-        doc[wgRemoteIP] = vars.vpnWgPeerIp.toString();
+        doc[wgConnect]    = vars.vpnWgConnect ? 1 : 0;
+        doc[wgRemoteIP]   = vars.vpnWgPeerIp.toString();
         // doc[wgEndPort] = vpnCfg.wgEndPort;
     }
 }
@@ -1834,12 +1668,12 @@ static inline void getRootVpnHusarnet(DynamicJsonDocument &doc)
 {
     if (vpnCfg.hnEnable)
     {
-        const char *hnInit = "hnInit";
+        const char *hnInit     = "hnInit";
         const char *hnHostName = "hnHostName";
 
         // doc[wgDeviceAddr] = vpnCfg.wgLocalIP.toString();//WgSettings.localAddr;
         doc[hnHostName] = vpnCfg.hnHostName;
-        doc[hnInit] = vars.vpnHnInit ? 1 : 0;
+        doc[hnInit]     = vars.vpnHnInit ? 1 : 0;
     }
 }
 
@@ -1889,18 +1723,18 @@ static inline void getRootHwMisc(DynamicJsonDocument &doc, bool update)
     doc[operationalMode] = systemCfg.workMode;
 
     doc[espUpdAvailKey] = vars.updateEspAvail;
-    doc[rcpUpdAvailKey] = vars.updateZbAvail;
+    doc[zbUpdAvailKey]  = vars.updateZbAvail;
 
-    doc["hwRev"] = hwConfig.board;
+    doc["hwRev"]    = hwConfig.board;
     doc["espModel"] = String(ESP.getChipModel());
     doc["espCores"] = ESP.getChipCores();
-    doc["espFreq"] = ESP.getCpuFreqMHz();
+    doc["espFreq"]  = ESP.getCpuFreqMHz();
 
-    // esp_chip_info_t chip_info;
-    // esp_chip_info(&chip_info);
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
 
     const char *espFlashType = "espFlashType";
-    if (true) // chip_info.features & CHIP_FEATURE_EMB_FLASH)
+    if (chip_info.features & CHIP_FEATURE_EMB_FLASH)
     {
         doc[espFlashType] = 1;
     }
@@ -1919,19 +1753,19 @@ static inline void getRootHwMisc(DynamicJsonDocument &doc, bool update)
     else
     {
         doc["zigbeeFwRev"] = String(systemCfg.zbFw);
-        doc["zbFwSaved"] = true;
+        doc["zbFwSaved"]   = true;
     }
 
-    doc["zigbeeHwRev"] = CCTool.chip.hwRev;
-    doc["zigbeeIeee"] = CCTool.chip.ieee;
+    doc["zigbeeHwRev"]  = CCTool.chip.hwRev;
+    doc["zigbeeIeee"]   = CCTool.chip.ieee;
     doc["zigbeeFlSize"] = String(CCTool.chip.flashSize / 1024);
 
     unsigned int totalFs = LittleFS.totalBytes() / 1024;
-    unsigned int usedFs = LittleFS.usedBytes() / 1024;
+    unsigned int usedFs  = LittleFS.usedBytes() / 1024;
     doc["espFsSize"] = totalFs;
     doc["espFsUsed"] = usedFs;
 
-    doc[zbRoleKey] = systemCfg.zbRole;
+    doc[zbRoleKey]       = systemCfg.zbRole;
     doc["zigbeeFwSaved"] = systemCfg.zbFw;
 }
 
@@ -1956,10 +1790,10 @@ static inline void getRootNvsStats(DynamicJsonDocument &doc)
 static inline void getRootSockets(DynamicJsonDocument &doc)
 {
     const char *connectedSocketStatus = "connectedSocketStatus";
-    const char *connectedSocket = "connectedSocket";
+    const char *connectedSocket       = "connectedSocket";
 
     doc[connectedSocketStatus] = vars.connectedClients;
-    doc[connectedSocket] = vars.socketTime;
+    doc[connectedSocket]       = vars.socketTime;
 }
 
 static inline void getRootTime(DynamicJsonDocument &doc)
@@ -1972,21 +1806,21 @@ String getRootData(bool update)
     DynamicJsonDocument doc(2048);
 
     const char *noConn = "noConn";
-    getRootEthTab(doc, update, noConn);
-    getRootWifi(doc, update, noConn);
+    getRootEthTab       (doc, update, noConn);
+    getRootWifi         (doc, update, noConn);
 
-    getRootHwMisc(doc, update);
+    getRootHwMisc       (doc, update);
 
-    getRootSockets(doc);
-    getRootTime(doc);
-    getRootUptime(doc);
-    getRootCpuTemp(doc);
-    getRootOneWireTemp(doc);
-    getRootHeapsize(doc);
-    getRootNvsStats(doc);
-    getRootMqtt(doc);
-    getRootVpnWireGuard(doc);
-    getRootVpnHusarnet(doc);
+    getRootSockets      (doc);
+    getRootTime         (doc);
+    getRootUptime       (doc);
+    getRootCpuTemp      (doc);
+    getRootOneWireTemp  (doc);
+    getRootHeapsize     (doc);
+    getRootNvsStats     (doc);
+    getRootMqtt         (doc);
+    getRootVpnWireGuard (doc);
+    getRootVpnHusarnet  (doc);
 
     String result;
     serializeJson(doc, result);
@@ -2005,7 +1839,7 @@ void handleTools()
     String result;
     DynamicJsonDocument doc(512);
 
-    doc[hwBtnIsKey] = vars.hwBtnIs;
+    doc[hwBtnIsKey]    = vars.hwBtnIs;
     doc[hwLedPwrIsKey] = vars.hwLedPwrIs;
     doc[hwLedUsbIsKey] = vars.hwLedUsbIs;
     // doc[hwUartSelIsKey] = vars.hwUartSelIs;
@@ -2027,8 +1861,8 @@ void handleSavefile()
     else
     {
         String filename = "/" + serverWeb.arg(0);
-        String content = serverWeb.arg(1);
-        File file = LittleFS.open(filename, "w");
+        String content  = serverWeb.arg(1);
+        File   file     = LittleFS.open(filename, "w");
 
         LOGD("try %s", filename.c_str());
 
@@ -2116,7 +1950,6 @@ void progressNvRamFunc(unsigned int progress, unsigned int total)
 
 void progressFunc(unsigned int progress, unsigned int total)
 {
-
     const uint8_t eventLen = 11;
 
     float percent = ((float)progress / total) * 100.0;
@@ -2127,7 +1960,7 @@ void progressFunc(unsigned int progress, unsigned int total)
 #ifdef DEBUG
     if (int(percent) % 5 == 0)
     {
-        LOGD("Update ESP32 progress: %s of %s | %s%%", String(progress).c_str(), String(total).c_str(), String(percent).c_str());
+        LOGD("Update ESP32 progress: %s of %s | %s%", String(progress), String(total), String(percent));
     }
 #endif
 };
@@ -2139,77 +1972,56 @@ void getEspUpdate(String esp_fw_url)
 {
     LOGI("getEspUpdate: %s", esp_fw_url.c_str());
 
-    // checkDNS();
+    checkDNS();
     HTTPClient http;
-    // WiFiClientSecure client;
-    // client.setInsecure(); // the magic line, use with caution
+    WiFiClientSecure client;
+    client.setInsecure(); // the magic line, use with caution
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-    // http.begin(client, esp_fw_url);
+    http.begin(client, esp_fw_url);
+    http.addHeader("Content-Type", "application/octet-stream");
 
-    if (dnsLookup(esp_fw_url))
+    // Get file, just to check if each reachable
+    int resp = http.GET();
+    LOGD("Response: %s", String(resp));
+    // If file is reachable, start downloading
+    if (resp == HTTP_CODE_OK)
     {
-        http.begin(esp_fw_url);
-        http.addHeader("Content-Type", "application/octet-stream");
-
-        // Get file, just to check if each reachable
-        int resp = http.GET();
-        LOGD("Response: %s", String(resp).c_str());
-        // If file is reachable, start downloading
-        if (resp == HTTP_CODE_OK)
+        // get length of document (is -1 when Server sends no Content-Length header)
+        totalLength = http.getSize();
+        // transfer to local variable
+        int len = totalLength;
+        // this is required to start firmware update process
+        Update.begin(totalLength);
+        Update.onProgress(progressFunc);
+        LOGI("FW Size: %s", String(totalLength));
+        // create buffer for read
+        uint8_t buff[128] = {0};
+        // get tcp stream
+        WiFiClient *stream = http.getStreamPtr();
+        // read all data from server
+        LOGI("Updating firmware...");
+        while (http.connected() && (len > 0 || len == -1))
         {
-            // get length of document (is -1 when Server sends no Content-Length header)
-            totalLength = http.getSize();
-            // transfer to local variable
-            int len = totalLength;
-            // this is required to start firmware update process
-
-            int updateType = 0;
-            bool isSpiffsUpdate = false;
-            if (esp_fw_url.endsWith(".fs.bin"))
-
+            // get available data size
+            size_t size = stream->available();
+            if (size)
             {
-                updateType = U_SPIFFS;
-                isSpiffsUpdate = true;
-            }
-            else
-            {
-                updateType = U_FLASH;
-                isSpiffsUpdate = false;
-            }
-
-            Update.begin(totalLength, updateType);
-            Update.onProgress(progressFunc);
-            LOGI("File size: %s", String(totalLength).c_str());
-            // create buffer for read
-            uint8_t buff[128] = {0};
-            // get tcp stream
-            WiFiClient *stream = http.getStreamPtr();
-            // read all data from server
-            LOGI("Updating %s ...", isSpiffsUpdate ? "file system" : "firmware");
-            while (http.connected() && (len > 0 || len == -1))
-            {
-                esp_task_wdt_reset();
-                // get available data size
-                size_t size = stream->available();
-                if (size)
+                // read up to 128 byte
+                int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+                // pass to function
+                runEspUpdateFirmware(buff, c);
+                if (len > 0)
                 {
-                    // read up to 128 byte
-                    int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-                    // pass to function
-                    runEspUpdateFirmware(buff, c);
-                    if (len > 0)
-                    {
-                        len -= c;
-                    }
+                    len -= c;
                 }
             }
         }
-        else
-        {
-            LOGI("Cannot download firmware file.");
-        }
-        http.end();
     }
+    else
+    {
+        LOGI("Cannot download firmware file.");
+    }
+    http.end();
 }
 
 void runEspUpdateFirmware(uint8_t *data, size_t len)
@@ -2224,91 +2036,46 @@ void runEspUpdateFirmware(uint8_t *data, size_t len)
     Update.end(true);
     LOGD("Update success. Rebooting...");
     // Restart ESP32 to see changes
-    restartDevice();
+    ESP.restart();
 }
 
-FirmwareInfo fetchLatestEspFw(String type)
+String fetchLatestEspFw()
 {
-    FirmwareInfo info = {"", ""};
+    checkDNS();
+    HTTPClient http;
+    http.begin("https://api.github.com/repos/xyzroe/XZG/releases");
+    int httpCode = http.GET();
 
-    if (type == "fs" || type == "ota")
+    String browser_download_url = "";
+
+    if (httpCode > 0)
     {
-        HTTPClient http;
-        http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
-        http.begin(fw_update_release_manifest_url);
-        int httpCode = http.GET();
+        String payload = http.getString();
 
-        if (httpCode > 0)
+        DynamicJsonDocument doc(8192);
+        deserializeJson(doc, payload);
+        JsonArray releases = doc.as<JsonArray>();
+
+        if (releases.size() > 0 && releases[0]["assets"].size() > 1)
         {
-            String payload = http.getString();
-
-            DynamicJsonDocument doc(4096);
-            DeserializationError error = deserializeJson(doc, payload);
-
-            if (!error)
-            {
-                size_t usedMemory = doc.memoryUsage();
-                LOGD("doc used: %s bytes", String(usedMemory).c_str());
-
-                JsonObject release = doc.as<JsonObject>();
-
-                if (release.containsKey("version"))
-                {
-                    info.version = release["version"].as<String>();
-                    info.url = fw_update_url_base
-                               + info.version
-                               + "/"
-                               + fw_update_url_release_name
-                               + info.version + "." + type + ".bin";
-                    //info.url = "https://raw.githubusercontent.com/xyzroe/XZG/refs/heads/releases/latest/XZG." + type + ".bin";
-                    LOGD("Latest version: %s | url %s", info.version.c_str(), info.url.c_str());
-                }
-                else
-                {
-                    LOGD("No version found");
-                }
-
-                String needKey;
-                if (type == "fs")
-                {
-                    needKey = "fs_sha";
-                }
-                else
-                {
-                    needKey = "fw_sha";
-                }
-                if (release.containsKey(needKey))
-                {
-                    info.sha = release[needKey].as<String>();
-                }
-                else
-                {
-                    LOGD("No SHA for %s found", type.c_str());
-                }
-            }
-            else
-            {
-                LOGD("deserializeJson failed: %s", error.c_str());
-            }
+            browser_download_url = releases[0]["assets"][1]["browser_download_url"].as<String>();
+            // LOGD("browser_download_url: %s", browser_download_url.c_str());
         }
-        else
-        {
-            LOGD("Error on HTTP request: %d", httpCode);
-        }
-        http.end();
     }
     else
     {
-        LOGD("Invalid type: %s", type.c_str());
+        LOGD("Error on HTTP request");
     }
-    return info;
+
+    http.end();
+    return browser_download_url;
 }
 
 String fetchLatestZbFw()
 {
-    // checkDNS();
+    checkDNS();
     HTTPClient http;
-    http.begin(zb_update_release_manifest_url);
+    http.begin("https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json");
     int httpCode = http.GET();
 
     String browser_download_url = "";
@@ -2318,20 +2085,13 @@ String fetchLatestZbFw()
         String payload = http.getString();
 
         DynamicJsonDocument doc(8192 * 2);
-        DeserializationError error = deserializeJson(doc, payload);
-
-        if (error)
-        {
-            LOGD("deserializeJson() failed: %s", error.c_str());
-            return "";
-        }
+        deserializeJson(doc, payload);
 
         size_t usedMemory = doc.memoryUsage();
-        LOGD("doc used: %s bytes", String(usedMemory).c_str());
+        LOGD("doc used: %s bytes", String(usedMemory));
 
-        String roleKey = getRadioRoleKey();
-
-        /*if (systemCfg.zbRole == COORDINATOR)
+        String roleKey;
+        if (systemCfg.zbRole == COORDINATOR)
         {
             roleKey = "coordinator";
         }
@@ -2342,7 +2102,7 @@ String fetchLatestZbFw()
         else if (systemCfg.zbRole == OPENTHREAD)
         {
             roleKey = "thread";
-        }*/
+        }
 
         if (doc.containsKey(roleKey) && doc[roleKey].containsKey(CCTool.chip.hwRev))
         {
@@ -2365,7 +2125,7 @@ String fetchLatestZbFw()
     }
     else
     {
-        LOGD("Error on HTTP request: %d", httpCode);
+        LOGD("Error on HTTP request");
     }
 
     http.end();

@@ -1,8 +1,3 @@
-#ifndef ETC_H
-#define ETC_H
-
-#include <Arduino.h>
-
 #include <ETH.h>
 #include "const/hw.h"
 
@@ -26,8 +21,8 @@ void zigbeeRestart();
 
 void usbModeSet(usbMode mode);
 
-void writeDefaultDeviceId(char *arr, bool ethernet);
-//void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
+void getDeviceID(char *arr);
+void writeDefaultConfig(const char *path, DynamicJsonDocument &doc);
 
 #define TIMEOUT_FACTORY_RESET 3
 
@@ -36,7 +31,7 @@ void factoryReset();
 void setLedsDisable(bool all = false);
 void cronTest();
 void nmActivate();
-//bool checkDNS(bool setup = false);
+bool checkDNS(bool setup = false);
 void setupCron();
 
 void setClock(void *pvParameters);
@@ -54,21 +49,4 @@ String getTime();
 
 void checkUpdateAvail();
 
-bool isIpInSubnet(IPAddress ip, IPAddress subnet, IPAddress subnetMask);
-bool isValidIp(IPAddress ip);
-String getHostFromUrl(const String& url);
-String getRadioRoleKey();
-String removeLeadingZeros(const String& block);
-String getShortenedIPv6(const String& ipv6);
-void restartDevice();
-void freeHeapPrint();
-bool dnsLookup(const String &url);
-void firstUpdCheck();
 
-struct FirmwareInfo {
-    String url;
-    String version;
-    String sha;
-};
-
-#endif // ETC_H

@@ -40,10 +40,7 @@ extern CCTools CCTool;
 // extern int btnFlag;
 int btnFlag = 0;
 
-#include <Ticker.h> 
-
-//Ticker tmrBtnLongPress(handleLongBtn, 1000, 0, MILLIS);
-Ticker tmrBtnLongPress; // Объявление объекта Ticker без параметров
+Ticker tmrBtnLongPress(handleLongBtn, 1000, 0, MILLIS);
 
 void handleLongBtn()
 {
@@ -74,8 +71,7 @@ void handleLongBtn()
             setLedsDisable(!vars.disableLeds);
             vars.disableLeds = !vars.disableLeds;
         }
-        //tmrBtnLongPress.stop();
-        tmrBtnLongPress.detach(); // Использование метода detach() вместо stop()
+        tmrBtnLongPress.stop();
         btnFlag = false;
     }
     if (btnFlag >= 5)
@@ -83,8 +79,7 @@ void handleLongBtn()
         ledControl.modeLED.mode = LED_FLASH_3Hz;
         printLogMsg("BTN - 5sec - zigbeeEnableBSL");
         zigbeeEnableBSL();
-        //tmrBtnLongPress.stop();
-        tmrBtnLongPress.detach(); // Использование метода detach() вместо stop()
+        tmrBtnLongPress.stop();
         btnFlag = false;
     }
 }
@@ -100,13 +95,13 @@ void toggleUsbMode()
         systemCfg.workMode = WORK_MODE_NETWORK;
     }
     saveSystemConfig(systemCfg);
-    LOGD("Change mode to %s", String(systemCfg.workMode).c_str());
+    LOGD("Change mode to %s", String(systemCfg.workMode));
 
     if (vars.hwLedUsbIs)
     {
         ledControl.modeLED.mode = LED_ON;
     }
-    restartDevice();
+    ESP.restart();
 }
 
 void buttonInit()
@@ -153,14 +148,12 @@ void buttonLoop()
 {
     if (digitalRead(hwConfig.mist.btnPin) != hwConfig.mist.btnPlr) // pressed
     {
-        //if (tmrBtnLongPress.state() == STOPPED)
-        if (!tmrBtnLongPress.active()) // Проверка активности таймера с помощью метода active()
+        if (tmrBtnLongPress.state() == STOPPED)
         {
-            //tmrBtnLongPress.start();
-            tmrBtnLongPress.attach(1, handleLongBtn); // Запуск таймера с интервалом 1 секунда и функцией обратного вызова handleLongBtn
+            tmrBtnLongPress.start();
         }
     }
-    //tmrBtnLongPress.update();
+    tmrBtnLongPress.update();
 }
 
 IRAM_ATTR bool debounce()

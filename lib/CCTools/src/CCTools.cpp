@@ -184,8 +184,7 @@ bool CommandInterface::_checkLastCmd()
         else
         {
             const char *stat_str = _getStatusString(stat[0]);
-            //if (stat_str == "Unknown")
-            if (strcmp(stat_str, "Unknown") == 0)
+            if (stat_str == "Unknown")
             {
                 DEBUG_PRINTLN("Warning: unrecognized status returned 0x" + String(stat[0]));
             }
@@ -797,8 +796,7 @@ bool CCTools::detectChipInfo()
     delete[] ieee_b2;
 
     String chip_str;
-    //if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
-    if ((protocols & PROTO_MASK_IEEE) == PROTO_MASK_IEEE)
+    if (protocols & PROTO_MASK_IEEE == PROTO_MASK_IEEE)
     {
         uint32_t test = 360372;
         // DEBUG_PRINT(test, HEX);
@@ -870,7 +868,6 @@ bool CCTools::checkFirmwareVersion()
     {
         restart();
     }
-    _cleanBuffer();
     zbInfoStruct temp = _checkFwVer();
     chip.fwRev = temp.fwRev;
     chip.maintrel = temp.maintrel;
@@ -968,9 +965,4 @@ bool CCTools::nvram_reset(void (*logFunction)(const String&))
     restart();
 
     return success;
-}
-
-void CCTools::cleanBuffer()
-{
-    _cleanBuffer();
 }

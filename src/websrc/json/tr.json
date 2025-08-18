@@ -33,8 +33,7 @@
       "e": "Bitiş zamanı",
       "s": "Başlangıç ​​saati"
     },
-    "cerp": "Etkinliklerin yeniden bağlanması için maksimum yeniden deneme sayısına ulaşıldı. \nDevam etmek için sayfayı yenileyin.",
-    "more": "Daha fazla bilgi"
+    "cerp": "Etkinliklerin yeniden bağlanması için maksimum yeniden deneme sayısına ulaşıldı. \nDevam etmek için sayfayı yenileyin."
   },
   "md": {
     "esp": {
@@ -245,8 +244,7 @@
         "nnf": "WiFi ağları bulunamadı",
         "mode": "Mod",
         "power": "Teksas Gücü"
-      },
-      "ipv6": "IPv6"
+      }
     },
     "st": {
       "dic": {
@@ -309,8 +307,7 @@
       "desc": "Güvenlik yapılandırması",
       "fw": {
         "desc": "Soket için IP beyaz listesi",
-        "ip": "İzin verilen IP",
-        "mask": "İzin Verilen Maske"
+        "ip": "İzin verilen IP"
       },
       "web": {
         "auth": "Web sunucusu kimlik doğrulamasını etkinleştir",
@@ -446,7 +443,7 @@
         "tt": "Yazılım Yazılımı beta geri bildirimi"
       },
       "upd": {
-        "msg": "XZG ürün yazılımının daha yeni bir sürümü bulundu",
+        "msg": "GitHub'da yeni donanım yazılımı ({{ver}}) bulundu. \n{{count}} kez indirildi.",
         "tt": "ESP32 güncellemesi mevcut 🚀"
       }
     },
@@ -455,8 +452,7 @@
         "tt": "Firmware bulunamadı"
       },
       "upd": {
-        "tt": "Yeni Zigbee ürün yazılımı bulundu 🌟",
-        "msg": "RCP modülü için daha yeni bir ürün yazılımı sürümü bulundu"
+        "tt": "Yeni Zigbee ürün yazılımı bulundu 🌟"
       }
     }
   }

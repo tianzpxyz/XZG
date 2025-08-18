@@ -2,7 +2,6 @@
 #include <AsyncMqttClient.h>
 
 void mqttConnectSetup();
-void mqttDisconnectCleanup();
 void connectToMqtt();
 void onMqttConnect(bool sessionPresent);
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
@@ -10,7 +9,6 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
 void executeCommand(const char *command);
 void mqttPublishAvail();
 void mqttPublishIo(const String &io, bool st);
-void mqttPublishUpdate(const String &chip, bool state = false);
 void mqttPublishState();
 void mqttPublishDiscovery();
 
@@ -25,13 +23,8 @@ struct mqttTopicsConfig {
     String icon;
     String payloadPress;
     String valueTemplate;
+    String jsonAttributeTopic;
     String deviceClass;
     String unitOfMeasurement;
-    String entityCategory;
-    String entityPicture;
-    String payloadInstall;
-    String releaseUrl;
-    String jsonAttrTemplate;
-    String jsonAttrTopic;
     SensorValueFunction getSensorValue;
 };

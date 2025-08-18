@@ -18,7 +18,7 @@ const statusFail = $('<span>', {
 	"role": "status",
 }).css("margin-left", "10px").text("❌");
 
-const zbFwInfoUrl = "https://raw.githubusercontent.com/tianzpxyz/XZG/zb_fws/ti/manifest.json";
+const zbFwInfoUrl = "https://raw.githubusercontent.com/xyzroe/XZG/zb_fws/ti/manifest.json";
 
 const headerText = ".modal-title";
 const headerBtnClose = ".modal-btn-close";
@@ -83,8 +83,8 @@ const IconsStatusCodes = {
 	ERROR: 3
 };
 
-//let intervalIdUpdateRoot;
-//let intervalTimeUpdateRoot;
+let intervalIdUpdateRoot;
+let intervalTimeUpdateRoot;
 
 let updateValues = {};
 
@@ -278,11 +278,11 @@ function copyCode() {
 function generateConfig(params) {
 	let result;
 	const mist_cfg_txt = `baudrate: ${$("#baud").val()}
-  # ${i18next.t('p.zi.cfg.dzl')}
-  disable_led: false
+# ${i18next.t('p.zi.cfg.dzl')}
+	disable_led: false
+# ${i18next.t('p.zi.cfg.sopm')}
 advanced:
-  # ${i18next.t('p.zi.cfg.sopm')}
-  transmit_power: 20`;
+	transmit_power: 20`;
 	const ip = window.location.host;
 	const port = $("#port").val();
 	if (ip == "192.168.1.1") $("#apAlert").removeClass(classHide);
@@ -293,8 +293,7 @@ advanced:
 		case "z2m":
 			result = `# ${i18next.t('p.zi.cfg.ss')}
 serial:
-  # ${i18next.t('p.zi.cfg.lxzg')}
-  adapter: zstack
+# ${i18next.t('p.zi.cfg.lxzg')}
   port: tcp://${ip}:${port}
   ${mist_cfg_txt}`;
 			break;
@@ -303,7 +302,7 @@ serial:
 # ${i18next.t('p.zi.cfg.lin')}
 # ${i18next.t('p.zi.cfg.ss')}
 serial:
-  # ${i18next.t('p.zi.cfg.lxzg')}
+# ${i18next.t('p.zi.cfg.lxzg')}
   port: ${i18next.t('p.zi.cfg.dp')}
   ${mist_cfg_txt}`;
 			break;
@@ -566,7 +565,7 @@ function apiGetPage(page, doneCall, loader = true) {
 
 			$("form.saveParams").on("submit", function (e) {
 				e.preventDefault();
-				//showWifiCreds();
+				showWifiCreds();
 				if (this.id === "netCfg") {
 					var ethEnblSw = document.getElementById('ethEnbl').checked;
 					var wifiEnblSw = document.getElementById('wifiEnbl').checked;
@@ -580,9 +579,9 @@ function apiGetPage(page, doneCall, loader = true) {
 				}
 
 				const btn = $("form.saveParams button[type='submit']");
-				/*$(':disabled').each(function (e) {
+				$(':disabled').each(function (e) {
 					$(this).removeAttr('disabled');
-				});*/
+				});
 				spiner.appendTo(btn);
 				spiner2.appendTo(btn);
 				btn.prop("disabled", true);
@@ -964,14 +963,11 @@ function dataReplace(values, navOnly = false) {
 				document.querySelectorAll('.zfs_thread').forEach(card => card.classList.add('selected'));
 			}
 		}
-		if (property == "ethIPv6") {
-			showDivById("ethIPv6");
-		}
 		if (property == "espUpdAvail" && values[property] == 1) {
 			toastConstructor("espUpdAvail");
 		}
-		if (property == "rcpUpdAvail" && values[property] == 1) {
-			toastConstructor("rcpUpdAvail");
+		if (property == "zbUpdAvail" && values[property] == 1) {
+			toastConstructor("zbUpdAvail");
 		}
 		if (property == "zbFwSaved" && values[property] == 1) {
 			$('td[data-r2v="zigbeeFwRev"]').addClass('fst-italic');
@@ -1191,7 +1187,7 @@ function toastConstructor(params, text) {
 	switch (params) {
 		case "espUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.esp.upd.tt"));
-			$("#toastBody").text(i18next.t("ts.esp.upd.msg"));
+			$("#toastBody").text("ESP32 UPD text");
 			//$("#toastBody").text(text);
 			/*$('<button>', {
 				type: "button",
@@ -1205,7 +1201,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("c.more"),
+				text: i18next.t("c.now"),
 				click: function () {
 					$('.toast').toast('hide');
 					modalConstructor("fetchGitReleases");
@@ -1221,9 +1217,9 @@ function toastConstructor(params, text) {
 				}
 			}).appendTo("#toastButtons");
 			break;
-		case "rcpUpdAvail":
+		case "zbUpdAvail":
 			$("#toastHeaderText").text(i18next.t("ts.zb.upd.tt"));
-			$("#toastBody").text(i18next.t("ts.zb.upd.msg"));
+			$("#toastBody").text("ZB UPD text");
 			/*$('<button>', {
 				type: "button",
 				"class": "btn btn-outline-danger",
@@ -1236,7 +1232,7 @@ function toastConstructor(params, text) {
 			$('<button>', {
 				type: "button",
 				"class": "btn btn-warning",
-				text: i18next.t("c.more"),
+				text: i18next.t("c.now"),
 				click: function () {
 					$('.toast').toast('hide');
 					modalConstructor("flashZB");
@@ -1448,7 +1444,7 @@ function connectEvents() {
 			}
 			data = i18next.t('md.zg.fu.nv', { ver: ver });
 			setTimeout(function () {
-				//espReboot();
+				espReboot();
 				restartWait();
 			}, 1250);
 		}
@@ -2177,31 +2173,31 @@ function getWifiList() {
 							$("<td>" + elem.ssid + "</td>").appendTo($row);
 							let encryptType = "";
 							switch (elem.secure) {
-								case 0:
-									encryptType = "OPEN"
-									break;
-								case 1:
-									encryptType = "WEP"
-									break;
 								case 2:
-									encryptType = "WPA PSK"
-									break;
-								case 3:
-									encryptType = "WPA2 PSK"
-									break;
-								case 4:
-									encryptType = "WPA WPA2 PSK"
+									encryptType = "WPA"
 									break;
 
-								case 6:
-									encryptType = "WPA3 PSK"
+								case 3:
+									encryptType = "WPA2"
 									break;
+
+								case 4:
+									encryptType = "WPA2"
+									break;
+
+								case 5:
+									encryptType = "WEP"
+									break;
+
 								case 7:
-									encryptType = "WPA2 WPA3 PSK"
+									encryptType = "OPEN"
+									break;
+
+								case 8:
+									encryptType = "AUTO"
 									break;
 
 								default:
-									encryptType = "?"
 									break;
 							}
 							$("<td>" + encryptType + "</td>").appendTo($row);
@@ -2362,13 +2358,12 @@ function HnInputDsbl(state) {
 function SeqInputDsbl(state) {
 	$("#webUser").prop(disbl, state);
 	$("#webPass").prop(disbl, state);
-	//$('#div_show1').toggle(this.checked);
+	$('#div_show1').toggle(this.checked);
 }
 
 function SeqInputDsblFw(state) {
 	$("#fwIp").prop(disbl, state);
-	$("#fwMask").prop(disbl, state);
-	//$('#div_show2').toggle(this.checked);
+	$('#div_show2').toggle(this.checked);
 }
 
 function readFile(event, file) {
@@ -2409,7 +2404,7 @@ async function fetchData(url, isJson = true) {
 
 async function processResponses() {
 	try {
-		let jsonUrl = 'https://api.github.com/repos/tianzpxyz/XZG/releases/latest';
+		let jsonUrl = 'https://api.github.com/repos/xyzroe/XZG/releases/latest';
 		let textUrl = '/api?action=1&param=espVer';
 
 		let [jsonData, textData] = await Promise.all([
@@ -2535,8 +2530,7 @@ let languages = [
 	{ value: "tr", text: "🇹🇷 Türkçe" },
 	{ value: "it", text: "🇮🇹 Italiano" },
 	{ value: "pl", text: "🇵🇱 Polski" },
-	{ value: "cz", text: "🇨🇿 Čeština" },
-	{ value: "hu", text: "🇭🇺 Magyar" }
+	{ value: "cz", text: "🇨🇿 Čeština" }
 ];
 
 $(document).ready(() => {
@@ -2639,7 +2633,7 @@ function sub_zb(t) {
 }
 
 async function fetchReleaseData() {
-	var t = await fetch("https://api.github.com/repos/tianzpxyz/XZG/releases");
+	var t = await fetch("https://api.github.com/repos/xyzroe/XZG/releases");
 	if (t.ok) return await t.json();
 	throw new Error("GitHub API request failed: " + t.statusText)
 }

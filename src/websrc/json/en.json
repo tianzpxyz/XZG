@@ -125,7 +125,7 @@
     "ne": {
       "descEth": "Ethernet",
       "dhcp": "DHCP",
-      "ip": "IPv4",
+      "ip": "IP",
       "mask": "Subnet",
       "gw": "Gateway",
       "dns": "DNS",
@@ -142,8 +142,7 @@
         "nnf": "WiFi networks not found",
         "mode": "Mode",
         "power": "Tx Power"
-      },
-      "ipv6": "IPv6"
+      }
     },
     "zi": {
       "so": "Serial settings",
@@ -239,8 +238,7 @@
       },
       "fw": {
         "desc": "IP whitelist for Zigbee socket connection",
-        "ip": "Allowed IP",
-        "mask": "Allowed Mask"
+        "ip": "Allowed IP"
       }
     },
     "to": {
@@ -358,8 +356,7 @@
       "e": "End time",
       "s": "Start time"
     },
-    "cerp": "Events reconnection max retries reached. Refresh page to continue.",
-    "more": "More info"
+    "cerp": "Events reconnection max retries reached. Refresh page to continue."
   },
   "md": {
     "esp": {
@@ -435,7 +432,7 @@
     "esp": {
       "upd": {
         "tt": "ESP32 update available 🚀",
-        "msg": "A newer version of XZG firmware has been found"
+        "msg": "New firmware ({{ver}}) was found on GitHub. It was downloaded {{count}} times."
       },
       "beta": {
         "tt": "FW beta feedback",
@@ -452,8 +449,7 @@
         "tt": "No firmware found"
       },
       "upd": {
-        "tt": "New Zigbee firmware found 🌟",
-        "msg": "A newer version of firmware for the RCP module has been found"
+        "tt": "New Zigbee firmware found 🌟"
       }
     }
   }
