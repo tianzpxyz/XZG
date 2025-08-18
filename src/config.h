@@ -14,14 +14,14 @@
 
 #define ZB_TCP_PORT 6638 // any port ever. later setup from config file
 #define ZB_SERIAL_SPEED 115200
-#define NTP_TIME_ZONE "Europe/Berlin"
+#define NTP_TIME_ZONE "Asia/Shanghai"
 #define NTP_SERV_1 "pool.ntp.org"
 #define NTP_SERV_2 "time.google.com"
-#define DNS_SERV_1 "1.1.1.1"
+#define DNS_SERV_1 "114.114.114.114"
 #define DNS_SERV_2 "8.8.8.8"
 #define NETWORK_MASK "255.255.255.0"
 #define NETWORK_ZERO "0.0.0.0"
-#define NM_START_TIME "23:00"
+#define NM_START_TIME "22:00"
 #define NM_END_TIME "07:00"
 #define UPD_CHK_TIME "01:00"
 #define UPD_CHK_DAY "*"
